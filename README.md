@@ -23,4 +23,4 @@ Light Security Monitor is a Hubitat SmartApp designed to monitor contact sensors
 
 1. Open **Hubitat Package Manager** on your hub.  
 2. Select **Install → From a URL**.  
-3. Enter the manifest URL: https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/packageManifest.json
+3. Enter the manifest URL: https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/repository.json
