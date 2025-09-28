@@ -5,7 +5,13 @@
   "minimumHEVersion": "2.3.0",
   "dateReleased": "2025-09-28",
   "releaseNotes": "v20.0 - Major update with EZ Dashboard support, duration fixes, secure % alignment, short names, report button child device, and enhanced time tracking.",
-
+  "category": "Safety & Security",
+  "tags": [
+    "Security",
+    "Monitoring",
+    "Notifications",
+    "Dashboard"
+  ],
   "apps": [
     {
       "id": "LSM-v20",
@@ -16,7 +22,6 @@
       "oauth": false
     }
   ],
-
   "drivers": [
     {
       "id": "LSM-Tile",
@@ -37,8 +42,7 @@
       "name": "LSM Report Button",
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-button-driver.groovy",
-      "required": true
+      "required": false
     }
   ]
 }
-
