@@ -1,10 +1,10 @@
 {
   "packageName": "Light Security Monitor",
   "author": "WarlockWeary + ChatGPT + Grok + Claude",
-  "version": "20.0.0",
+  "version": "20.0.1",
   "minimumHEVersion": "2.3.0",
   "dateReleased": "2025-09-28",
-  "releaseNotes": "v20.0 - Major update with EZ Dashboard support, duration fixes, secure % alignment, short names, report button child device, and enhanced time tracking.",
+  "releaseNotes": "v20.0.1 - Test update to verify HPM update detection. No code changes.",
   "category": "Safety & Security",
   "tags": [
     "Security",
