@@ -1,1 +1,44 @@
-packageManifest.json
+{
+  "packageName": "Light Security Monitor",
+  "author": "WarlockWeary + ChatGPT + Grok + Claude",
+  "version": "20.0.0",
+  "minimumHEVersion": "2.3.0",
+  "dateReleased": "2025-09-28",
+  "releaseNotes": "v20.0 - Major update with EZ Dashboard support, duration fixes, secure % alignment, short names, report button child device, and enhanced time tracking.",
+
+  "apps": [
+    {
+      "id": "LSM-v20",
+      "name": "Light Security Monitor",
+      "namespace": "LSM",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/app/lsm-v20-app.groovy",
+      "required": true,
+      "oauth": false
+    }
+  ],
+
+  "drivers": [
+    {
+      "id": "LSM-Tile",
+      "name": "LSM Tile Device",
+      "namespace": "LSM",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-tile-driver.groovy",
+      "required": true
+    },
+    {
+      "id": "LSM-EZTile",
+      "name": "LSM EZ Tile Device",
+      "namespace": "LSM",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-ez-driver.groovy",
+      "required": true
+    },
+    {
+      "id": "LSM-ReportButton",
+      "name": "LSM Report Button",
+      "namespace": "LSM",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-button-driver.groovy",
+      "required": false
+    }
+  ]
+}
+
