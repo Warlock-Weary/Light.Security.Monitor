@@ -242,7 +242,7 @@ def mainPage() {
             input name: "btnClearLogs", type: "button", title: "🗑️ CLEAR ACTIVITY LOGS"
         }
         section("<b>Select name for monitor:</b>") {
-            input "namePrefix", "text", title: "Instance Name (e.g. HOUSE, GARAGE)", required: true, submitOnChange: true
+        input "namePrefix", "text", title: "Add Instance Name - Required (e.g. HOUSE, GARAGE)", required: true, submitOnChange: true
         }
         section("<b>Select devices to monitor:</b>") {
             input "contacts", "capability.contactSensor", title: "Contact Sensors", multiple: true, required: true, submitOnChange: true
