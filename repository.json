@@ -1,0 +1,8 @@
+{
+  "author": "WarlockWeary",
+  "name": "Light Security Monitor Repository",
+  "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/",
+  "packages": [
+    "packageManifest.json"
+  ]
+}
