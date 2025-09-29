@@ -1,6 +1,24 @@
 /**
  * Light Security Monitor v20.0
  * Author: WarlockWeary + ChatGPT + Grok + Claude
+ * ====================================================
+ *  App Name: Light Security Monitor v20.0
+ *  Platform: Hubitat Elevation
+ *  Author: WarlockWeary + ChatGPT + Grok + Claude
+ *  For Support, Information, and Updates:
+ *  https://community.hubitat.com/t/smartstart-manager/137492
+ *  https://github.com/jtp10181/Hubitat/tree/main/Apps/smartstart-manager
+ * ====================================================
+ *
+ *  Copyright 2025 Warlock Weary
+ *
+ *  GNU General Public License v3.0 (the "License"); you may not use this file except
+ *  in compliance with the License. You may obtain a copy of the License at:
+ *  https://choosealicense.com/licenses/gpl-3.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software distributed under the License is
+ *  distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and limitations under the License.
  *
  * Features:
  * - Contact Sensors + multi-lock monitoring with custom short names
