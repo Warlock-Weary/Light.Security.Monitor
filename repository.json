@@ -1,7 +1,7 @@
 {
   "author": "Warlock Weary",
   "gitHubUrl": "https://github.com/Warlock-Weary/Light.Security.Monitor",
-  "payPalUrl": "https://venmo.com @Warlock-Weary",
+  "payPalUrl": "https://venmo.com/Warlock-Weary",
   "packages": [
     {
       "name": "Light Security Monitor",
@@ -13,7 +13,9 @@
         "Monitoring",
         "Notifications",
         "Dashboard"
-      ]
+      ],
+      "documentationLink": "https://github.com/Warlock-Weary/Light.Security.Monitor/blob/main/README.md",
+      "communityLink": "https://community.hubitat.com"
     }
   ]
 }
