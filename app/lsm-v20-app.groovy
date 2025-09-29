@@ -1,13 +1,11 @@
 /**
- * Light Security Monitor v20.0
- * Author: WarlockWeary + ChatGPT + Grok + Claude
  * ====================================================
  *  App Name: Light Security Monitor v20.0
  *  Platform: Hubitat Elevation
  *  Author: WarlockWeary + ChatGPT + Grok + Claude
  *  For Support, Information, and Updates:
- *  https://community.hubitat.com/t/smartstart-manager/137492
- *  https://github.com/jtp10181/Hubitat/tree/main/Apps/smartstart-manager
+ *  https://community.hubitat.com
+ *  https://github.com/Warlock-Weary/Light.Security.Monitor
  * ====================================================
  *
  *  Copyright 2025 Warlock Weary
