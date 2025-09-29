@@ -42,7 +42,7 @@
       "name": "LSM Report Button",
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-button-driver.groovy",
-      "required": false
+      "required": true
     }
   ]
 }
