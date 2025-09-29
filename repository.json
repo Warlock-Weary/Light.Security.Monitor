@@ -1,12 +1,19 @@
 {
-  "author": "WarlockWeary",
-  "name": "Light Security Monitor Repository",
-  "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/",
+  "author": "Warlock Weary",
+  "gitHubUrl": "https://github.com/Warlock-Weary/Light.Security.Monitor",
+  "payPalUrl": "https://venmo.com @Warlock-Weary",
   "packages": [
     {
-      "id": "LightSecurityMonitor",
       "name": "Light Security Monitor",
-      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/packageManifest.json"
+      "category": "Safety & Security",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/packageManifest.json",
+      "description": "Monitors locks & sensors, controls bulbs, sends notifications, daily reports, and integrates with EZ Dashboard.",
+      "tags": [
+        "Security",
+        "Monitoring",
+        "Notifications",
+        "Dashboard"
+      ]
     }
   ]
 }
