@@ -54,7 +54,7 @@
 
 
 definition(
-    name: "Light Security Monitor v20.0.2",
+    name: "Light Security Monitor",
     namespace: "LSM",
     author: "WarlockWeary + ChatGPT + Grok + Claude",
     description: "Monitor sensors and multiple locks, control bulbs with color/blink, daily reports, test buttons, and dashboard status tile. Includes grace period and customizable 24-hour report. FIXED duration tracking and time calculations. Added contact sensor debounce.",
