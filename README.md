@@ -29,8 +29,8 @@ Light Security Monitor is a Hubitat SmartApp designed to monitor contact sensors
 
 ## 🔒 Light Security Monitor – Safe Update Guide
 
-To keep your dashboards intact during updates, always update in place.
-Do not delete the app or drivers unless you intend to start over from scratch!
+To keep your dashboards intact during updates, always update in place!
+<b>→ Do not delete the app or drivers unless you intend to start over from scratch!</b>
 
 
 ## ✅ Updating via Hubitat Package Manager (Recommended)
