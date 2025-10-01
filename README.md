@@ -62,6 +62,14 @@ Do not uninstall the app instance → this preserves your dashboards.<br>
 
 ## 🧰 Recovery Tips (If You Must Reinstall)
 
-Export your dashboard JSON (Settings → Advanced → Export).<br>
-Reinstall LSM and let it recreate child devices.<br>
-Reimport your dashboard JSON so tiles rebind automatically.<br>
+## Hubitat Legacy Dashboard<br>
+
+→ Export your dashboard JSON (Settings → Advanced → Export).<br>
+→ Reinstall LSM and let it recreate child devices.<br>
+→ Reimport your dashboard JSON so tiles rebind automatically.<br>
+
+## EZ Dashboard<br>
+
+→ EZ-Dash binds to device IDs dynamically. <br>
+→ As long as the Instance Name (HOUSE, GARAGE, etc.) stays the same<br>
+→ your tiles will auto-reconnect after reinstall.<br>
