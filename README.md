@@ -52,6 +52,7 @@ Do not uninstall the app instance → this preserves your dashboards.
 
 ❌ Don’t delete the LSM app instance from Apps.
 → This removes all child devices and breaks dashboards.
+
 ❌ Don’t rename namespace, name, or id in the manifest or drivers.
 → Hubitat will treat them as new devices and create duplicates.
 
