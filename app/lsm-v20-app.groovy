@@ -916,7 +916,7 @@ def doTestDaily() {
 
 // === Clear Logs Button ===
 def doClearLogs() {
-    logInfo("🧹 Manual clear logs from button")
+    logInfo("🧹 Manual clear logs from App - button")
     dailyResetClear()
 }
 
