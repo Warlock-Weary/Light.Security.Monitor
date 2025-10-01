@@ -33,7 +33,7 @@ To keep your dashboards intact during updates, always update in place.
 Do not delete the app or drivers unless you intend to start over from scratch!
 
 
-## ✅ ##Updating via Hubitat Package Manager (Recommended)
+## ✅ Updating via Hubitat Package Manager (Recommended)
 
 Open Hubitat Package Manager (HPM) → Update.
 HPM will download and overwrite the latest LSM app & driver code.
