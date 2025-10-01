@@ -3,8 +3,8 @@
   "author": "WarlockWeary + ChatGPT + Grok + Claude",
   "version": "20.0.3",
   "minimumHEVersion": "2.3.0",
-  "dateReleased": "2025-09-30",
-  "releaseNotes": "v20.0.3 - Fixed repeat notifications when devices are open before window.",
+  "dateReleased": "2025-10-01",
+  "releaseNotes": "v20.0.3 - Fixed duplicate installs by keeping app name constant. Also retains v20.0.2 fix for notifications when devices are open before window.",
   "category": "Safety & Security",
   "tags": [
     "Security",
