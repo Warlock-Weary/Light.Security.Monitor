@@ -1,10 +1,10 @@
 {
   "packageName": "Light Security Monitor",
   "author": "WarlockWeary + ChatGPT + Grok + Claude",
-  "version": "20.0.2",
+  "version": "20.0.3",
   "minimumHEVersion": "2.3.0",
   "dateReleased": "2025-09-30",
-  "releaseNotes": "v20.0.2 - Fixed repeat notifications when devices are open before window.",
+  "releaseNotes": "v20.0.3 - Fixed repeat notifications when devices are open before window.",
   "category": "Safety & Security",
   "tags": [
     "Security",
