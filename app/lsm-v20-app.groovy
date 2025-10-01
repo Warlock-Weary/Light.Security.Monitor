@@ -731,6 +731,8 @@ def checkStatus(evt = null) {
             setLights(secureColor, secureLevel)
             unschedule("sendRepeatNotification")
             runEvery1Minute("updateStatusTileLive")
+            state.notificationInitiated = null
+            state.lastNotificationTime = null
             stopBlinking()
         } else {
             setLights(alertColor, alertLevel)
@@ -754,13 +756,11 @@ def updateStatusTileLive() {
     // Check if we need to start notifications for already-open devices
     def anyOpen = contacts?.any { it.currentValue("contact") == "open" }
     def anyUnlocked = locks?.any { it.currentValue("lock") == "unlocked" }
-    def isUnsecure = anyOpen || anyUnlocked
     
-    if (isUnsecure && sendPush && inTimeWindow()) {
-        // If no notification is scheduled and we're past grace period, start notifications
-        def hasScheduledNotification = state.lastNotificationTime != null
-        if (!hasScheduledNotification) {
-            logInfo("🔔 Tile update detected unsecure devices during notification window - starting notifications")
+    if (anyOpen || anyUnlocked) {
+        if (sendPush && inTimeWindow() && !state.notificationInitiated) {
+            logInfo("🔔 Starting notification cycle for already-open devices")
+            state.notificationInitiated = true
             scheduleNotification()
         }
     }
@@ -932,6 +932,7 @@ def dailyResetClear() {
     state.alarmLog = []
     state.notifyLog = []
     state.lastNotificationTime = null
+    state.notificationInitiated = null  // ADD THIS LINE
     logInfo("🧹 Logs cleared at daily reset")
     runIn(2, updateStatusTile)
 }
