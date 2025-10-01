@@ -1,5 +1,5 @@
 /**
- * Light Security Monitor v20.0.2
+ * Light Security Monitor v20.0.3
  * Author: WarlockWeary + ChatGPT + Grok + Claude
  *
  * Features:
