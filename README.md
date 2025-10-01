@@ -35,33 +35,33 @@ To keep your dashboards intact during updates, always update in place!<br>
 
 ## ✅ Updating via Hubitat Package Manager (Recommended)
 
-Open Hubitat Package Manager (HPM) → Update.
-HPM will download and overwrite the latest LSM app & driver code.
-All child devices (LSM TILE, LSM EZ TILE, LSM REPORT BUTTON) stay in place.
-Dashboards remain linked to these devices → no re-work required.
+Open Hubitat Package Manager (HPM) → Update.<br>
+HPM will download and overwrite the latest LSM app & driver code.<br>
+All child devices (LSM TILE, LSM EZ TILE, LSM REPORT BUTTON) stay in place.<br>
+Dashboards remain linked to these devices → no re-work required.<br>
 
 ## 🛠 Manual Update (Safe Method)
 
-If you’re editing/testing code locally:
-Go to Apps Code → open Light Security Monitor.
-Paste in the updated app code → Save.
-Do the same under Drivers Code for LSM Tile Device, LSM EZ Tile Device, LSM Report Button.
-Do not uninstall the app instance → this preserves your dashboards.
+If you’re editing/testing code locally:<br>
+Go to Apps Code → open Light Security Monitor.<br>
+Paste in the updated app code → Save.<br>
+Do the same under Drivers Code for LSM Tile Device, LSM EZ Tile Device, LSM Report Button.<br>
+Do not uninstall the app instance → this preserves your dashboards.<br>
 
 ## 🚫 What Not To Do
 
-❌ Don’t delete the LSM app instance from Apps.
-→ This removes all child devices and breaks dashboards.
+❌ Don’t delete the LSM app instance from Apps.<br>
+→ This removes all child devices and breaks dashboards.<br>
 
-❌ Don’t rename Instance Name - Add Instance Name - Required (e.g. HOUSE, GARAGE)*
-→ Keep them the same as you did in your first setup (e.g. HOUSE, GARAGE)*
-→ Hubitat will treat them as new devices and create duplicates.
+❌ Don’t rename Instance Name - Add Instance Name - Required (e.g. HOUSE, GARAGE)*<br>
+→ Keep them the same as you did in your first setup (e.g. HOUSE, GARAGE)*<br>
+→ Hubitat will treat them as new devices and create duplicates.<br>
 
-❌ Don’t rename namespace, name, or id in the manifest or drivers.
-→ Hubitat will treat them as new devices and create duplicates.
+❌ Don’t rename namespace, name, or id in the manifest or drivers.<br>
+→ Hubitat will treat them as new devices and create duplicates.<br>
 
 ## 🧰 Recovery Tips (If You Must Reinstall)
 
-Export your dashboard JSON (Settings → Advanced → Export).
-Reinstall LSM and let it recreate child devices.
-Reimport your dashboard JSON so tiles rebind automatically.
+Export your dashboard JSON (Settings → Advanced → Export).<br>
+Reinstall LSM and let it recreate child devices.<br>
+Reimport your dashboard JSON so tiles rebind automatically.<br>
