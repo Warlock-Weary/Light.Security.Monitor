@@ -54,7 +54,7 @@ Do not uninstall the app instance → this preserves your dashboards.<br>
 → This removes all child devices and breaks dashboards.<br>
 
 ❌ Don’t rename Instance Name - Add Instance Name - Required (e.g. HOUSE, GARAGE)*<br>
-→ Keep them the same as you did in your first setup (e.g. HOUSE, GARAGE)*<br>
+→ Keep them the same as you did in your first setup (e.g. HOUSE, GARAGE)<br>
 → Hubitat will treat them as new devices and create duplicates.<br>
 
 ❌ Don’t rename namespace, name, or id in the manifest or drivers.<br>
