@@ -1,22 +1,6 @@
 /**
- * ====================================================
- *  App Name: Light Security Monitor v20.0
- *  Platform: Hubitat Elevation
- *  Author: WarlockWeary + ChatGPT + Grok + Claude
- *  For Support, Information, and Updates:
- *  https://community.hubitat.com
- *  https://github.com/Warlock-Weary/Light.Security.Monitor
- * ====================================================
- *
- *  Copyright 2025 Warlock Weary
- *
- *  GNU General Public License v3.0 (the "License"); you may not use this file except
- *  in compliance with the License. You may obtain a copy of the License at:
- *  https://choosealicense.com/licenses/gpl-3.0
- *
- *  Unless required by applicable law or agreed to in writing, software distributed under the License is
- *  distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and limitations under the License.
+ * Light Security Monitor v20.0.2
+ * Author: WarlockWeary + ChatGPT + Grok + Claude
  *
  * Features:
  * - Contact Sensors + multi-lock monitoring with custom short names
@@ -53,6 +37,7 @@
  * - FIXED: Daily report unsecure time now sums individual device times
  * - FIXED: Still-open devices (contacts/locks) capped at current time instead of 24h window end
  * - ENHANCED: Daily/Forced Reports now show total event count (Nx) in the DEVICE ACTIVITY header
+ * > Fixed repeat notifications when devices are open before window.
  * - ADDED: EZ Dashboard support with 11 - options:
  * - LSM-STATUS -
  * - UNSECURED-DEVICES -
@@ -69,7 +54,7 @@
 
 
 definition(
-    name: "Light Security Monitor v20",
+    name: "Light Security Monitor v20.0.2",
     namespace: "LSM",
     author: "WarlockWeary + ChatGPT + Grok + Claude",
     description: "Monitor sensors and multiple locks, control bulbs with color/blink, daily reports, test buttons, and dashboard status tile. Includes grace period and customizable 24-hour report. FIXED duration tracking and time calculations. Added contact sensor debounce.",
@@ -258,7 +243,7 @@ def mainPage() {
             input name: "btnClearLogs", type: "button", title: "🗑️ CLEAR ACTIVITY LOGS"
         }
         section("<b>Select name for monitor:</b>") {
-        input "namePrefix", "text", title: "Add Instance Name - Required (e.g. HOUSE, GARAGE)", required: true, submitOnChange: true
+            input "namePrefix", "text", title: "Add Instance Name - Required (e.g. HOUSE, GARAGE)", required: true, submitOnChange: true
         }
         section("<b>Select devices to monitor:</b>") {
             input "contacts", "capability.contactSensor", title: "Contact Sensors", multiple: true, required: true, submitOnChange: true
@@ -765,6 +750,20 @@ def checkStatus(evt = null) {
 // === Live Dashboard Tile Update ===
 def updateStatusTileLive() {
     updateStatusTile()
+    
+    // Check if we need to start notifications for already-open devices
+    def anyOpen = contacts?.any { it.currentValue("contact") == "open" }
+    def anyUnlocked = locks?.any { it.currentValue("lock") == "unlocked" }
+    def isUnsecure = anyOpen || anyUnlocked
+    
+    if (isUnsecure && sendPush && inTimeWindow()) {
+        // If no notification is scheduled and we're past grace period, start notifications
+        def hasScheduledNotification = state.lastNotificationTime != null
+        if (!hasScheduledNotification) {
+            logInfo("🔔 Tile update detected unsecure devices during notification window - starting notifications")
+            scheduleNotification()
+        }
+    }
 }
 
 // === Get Current Status Message ===
@@ -817,11 +816,21 @@ def scheduleNotification() {
 }
 
 def sendRepeatNotification() {
+    logInfo("🔔 sendRepeatNotification called at ${new Date()}")
     def msg = getCurrentStatusMessage()
+    logInfo("🔔 Message: ${msg}")
+    logInfo("🔔 inTimeWindow: ${inTimeWindow()}")
+    logInfo("🔔 notifyDevices: ${notifyDevices}")
+    
     if ((msg.contains("❌") || msg.contains("⚠️")) && inTimeWindow()) {
         sendMessage("⚠ Security Alert! Unsecure device(s) detected!\n${msg}")
         state.lastNotificationTime = now()
-        if (repeatMinutes) runIn(repeatMinutes * 60, sendRepeatNotification)
+        if (repeatMinutes) {
+            logInfo("🔔 Scheduling next notification in ${repeatMinutes} minutes")
+            runIn(repeatMinutes * 60, sendRepeatNotification)
+        }
+    } else {
+        logInfo("🔔 Notification NOT sent - conditions not met")
     }
 }
 
