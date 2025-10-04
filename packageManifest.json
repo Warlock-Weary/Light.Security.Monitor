@@ -1,16 +1,17 @@
 {
   "packageName": "Light Security Monitor",
-  "author": "WarlockWeary + ChatGPT + Grok + Claude",
-  "version": "20.0.3",
-  "minimumHEVersion": "2.3.0",
-  "dateReleased": "2025-10-01",
-  "releaseNotes": "v20.0.3 - Fixed duplicate installs by keeping app name constant. Also retains v20.0.2 fix for notifications when devices are open before window.",
+  "author": "WarlockWeary + Claude AI + ChatGPT + Grok",
+  "version": "21.0.0",
+  "minimumHEVersion": "2.3.5",
+  "dateReleased": "2025-10-04",
+  "releaseNotes": "v21.0.0 - Major update with wizard setup, UI overhaul, and critical bug fixes. BREAKING: First-time wizard required for all users (settings preserved). NEW: 6-step guided setup wizard, blink method toggle (On/Off vs Flash), instance name protection. FIXED: State preservation (settings changes no longer clear logs), blinking race condition, cron schedule survival after daily reset, tile update timing. IMPROVED: Mobile-responsive UI with separators, device type prefixes, unified styling across all pages.",
   "category": "Safety & Security",
   "tags": [
     "Security",
     "Monitoring",
     "Notifications",
-    "Dashboard"
+    "Dashboard",
+    "Wizard"
   ],
   "apps": [
     {
