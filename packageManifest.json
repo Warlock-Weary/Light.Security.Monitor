@@ -4,13 +4,13 @@
   "version": "21.0.5",
   "minimumHEVersion": "2.3.5",
   "dateReleased": "2025-10-04",
-  "releaseNotes": "v21.0.5 - Corrected file paths and restored original app/driver IDs to prevent duplication during update.",
+  "releaseNotes": "v21.0.5 - Restored original UUIDs to prevent duplicate installs. Safe for all existing users upgrading from v20.x or v21.x. No functional changes.",
   "category": "Safety & Security",
   "tags": ["Security", "Monitoring", "Notifications", "Dashboard", "Wizard"],
 
   "apps": [
     {
-      "id": "2efd13d1-576f-4f6e-9222-88f9554b2209",
+      "id": "b88f91d9-1a8b-4d9c-a6a9-4a1232ce5cde",
       "name": "Light Security Monitor",
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/app/lsm-v20-app.groovy",
@@ -21,7 +21,7 @@
 
   "drivers": [
     {
-      "id": "e3d18d77-53c5-4f90-bb06-c28dbb26e3d7",
+      "id": "4c83e9a5-2b0c-44a4-8610-993c12b3b8e3",
       "name": "LSM Tile Device",
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-tile-driver.groovy",
@@ -29,7 +29,7 @@
       "version": "21.0.5"
     },
     {
-      "id": "b5cdd4a1-9a08-44ad-8e6e-76cf8164cb72",
+      "id": "7e9f2c0b-3a1f-49c5-bd8e-7b812f2d4a9a",
       "name": "LSM EZ Tile Device",
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-ez-driver.groovy",
@@ -37,7 +37,7 @@
       "version": "21.0.5"
     },
     {
-      "id": "65794891-b88a-4a39-ae7f-38a3e72fa31c",
+      "id": "5d6f7a8b-9c0d-41e2-8f7b-3d2e4f5c6a7b",
       "name": "LSM Report Button",
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-button-driver.groovy",
