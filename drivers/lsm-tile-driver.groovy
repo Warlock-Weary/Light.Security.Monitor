@@ -1,5 +1,5 @@
 /**
- * LSMTEST Tile Device V21.0.5
+ * LSMTEST Tile Device V22.0.0
  * Virtual child device for Light Security Monitor
  * Provides `statusTile` and `image` attributes for legacy dashboards
  */
