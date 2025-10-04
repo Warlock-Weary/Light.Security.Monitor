@@ -1,63 +1,67 @@
 /**
- * Light Security Monitor v20.0.3
- * Author: WarlockWeary + ChatGPT + Grok + Claude
+ * Light Security Monitor v21
+ * Author: Claude AI + WarlockWeary + ChatGPT + Grok
  *
- * Features:
- * - Contact Sensors + multi-lock monitoring with custom short names
- * - Bulb color control with + blinking (time-restricted)
- * - Notifications (repeatable, delayed start, grace period, time-restricted)
- * - Enhanced Daily Report (secure %, alarms, activity with counts/durations)
- * - Dashboard status tile with Secure Time (hh mm + %) and auto-refresh
- * - Polished multi-line formatting with active session tracking
- * - Grace period delay for first notification
- * - Dashboard button to trigger daily report
- * - Report Button child device to trigger daily reports manually
- * - Auto-reset logs daily at configurable time
- * - Debounce for both locks AND contact sensors to filter duplicate events
- * - Live auto-refresh of dashboard and EZ tiles on device state changes
- * - 1-minute scheduled updates ensure tiles stay current even when secure (for clocks and timers)
- * - Active session timers displayed for devices currently open/unlocked
- * - Short names used consistently in reports, dashboard tile, and EZ tile
- * - Added EZ Dashboard support with 11 different display show/attributes
+ * Wizard-style setup for LSM
+ * - Full core logic with state preservation and race condition fixes
+ * - Wizard: 6 steps + summary (full setup page)
+ * - Features: Debounce filtering, EZ Dashboard support, blink method toggle, unified UI styling
+ *
+ * CORE FUNCTIONALITY FIXES:
+ * - FIXED: State preservation in initialize() - settings changes no longer wipe daily logs
+ * - FIXED: Blinking race condition with state.blinkingStopped flag in toggleBlink()/stopBlinking()
+ * - FIXED: Contact sensor variable bug in getStatusSummary() (${l} changed to ${c})
+ * - FIXED: Missing blinkingStopped flag initialization in checkStatus() alert state
+ * - FIXED: Notification timing - grace period and repeat intervals work correctly
+ * - FIXED: Daily reset only clears logs at scheduled time or manual button press
+ * - FIXED: Daily reset Of Cron
+ * - FIXED: Adding runEvery1Minute("updateStatusTileLive") to initialize()
+ * - FIXED: Add the timestamp directly in updateStatusTile()
  * 
- * FIXES / ENHANCEMENTS:
- * - Fixed stopBlinking() function that was always setting red lights
- * - Added diagnostics to track light color changes
- * - Improved state change logic with delayed tile updates
- * - Fixed blinking with reliable on/off commands
- * - Aligned dashboard tile secure time with daily report
- * - Updated to show active session time on dashboard, daily totals in report
- * - FIXED: Duration tracking bug where locks and contact sensors showed 00h 00m in daily reports
- * - FIXED: Premature closing of alarm log entries for devices still open/unlocked
- * - ADDED: Debug logging and improved event tracking
- * - FIXED: Event logging now only triggers on actual state changes to prevent duplicates
- * - FIXED: Time calculation discrepancies between dashboard and daily report (unified calculation)
- * - FIXED: Removed "minimum 1 minute" rule that was causing errors
- * - ADDED: Contact sensor debounce to handle duplicate events from buggy devices
- * - FIXED: Daily report unsecure time now sums individual device times
- * - FIXED: Still-open devices (contacts/locks) capped at current time instead of 24h window end
- * - ENHANCED: Daily/Forced Reports now show total event count (Nx) in the DEVICE ACTIVITY header
- * > Fixed repeat notifications when devices are open before window.
- * - ADDED: EZ Dashboard support with 11 - options:
- * - LSM-STATUS -
- * - UNSECURED-DEVICES -
- * - SECURE-PERCENT -
- * - LOCKS-OPEN -
- * - CONTACTS-OPEN -
- * - ACTIVITY -
- * - LOCK-ACTIVITY -
- * - CONTACT-ACTIVITY -
- * - LOCKS -
- * - CONTACTS -
- * - LAST-UPDATE -
- */
-
+ * NEW FEATURES ADDED:
+ * - ADDED: Multi-page wizard setup (6 guided steps + summary) with setting pre-population on re-run
+ * - ADDED: Wizard toggle with auto-clear after completion to prevent loops
+ * - ADDED: Instance name protection - hidden and locked after initial setup
+ * - ADDED: Blink method toggle (On/Off Toggle vs Flash Command) with device capability detection
+ * - ADDED: Blinking method display in status summary showing active command type
+ * - ADDED: Device type prefixes (CONTACT:, LOCK:, LIGHT:) for all monitored devices
+ * - ADDED: Short name with original name reference display in status summary
+ * - ADDED: Enhanced status summary with monitoring icon (👁️) and better hierarchy
+ * 
+ * UI/UX IMPROVEMENTS:
+ * - IMPROVED: Unified visual styling with horizontal separators across all 7 pages
+ * - IMPROVED: Bold section headers with consistent formatting throughout
+ * - IMPROVED: Mobile-responsive two-line page titles with separator lines
+ * - IMPROVED: Page title format: "-= LIGHT SECURITY MONITOR =-" / "-= CURRENT SETTINGS =-"
+ * - IMPROVED: All wizard pages (1-6) now match summary page styling
+ * - IMPROVED: Section separators between major setting groups on summary page
+ * - IMPROVED: "CONTROLLING LIGHTS" section with individual LIGHT: prefixes
+ * - IMPROVED: "MONITORING SENSORS" header replaces generic "MONITOR SENSORS"
+ * 
+ * CONFIGURATION TUNING:
+ * - TUNED: Debounce defaults reduced to 1 second based on real Z-Wave hardware testing
+ * - TUNED: Debounce range restricted to 0-10 seconds (from 0-120) for sensor chatter
+ * - TUNED: eventMergeGapSeconds and contactMergeGapSeconds optimized for millisecond duplicates
+ * 
+ * CODE QUALITY:
+ * - Verified notification system handles quick open/close without false alerts
+ * - Confirmed child device names persist through settings changes
+ * - Validated dashboard tiles maintain connection after wizard re-run
+ * - Tested wizard reset functionality with setting preservation
+ * - Confirmed debounce logic filters hardware chatter while logging legitimate events
+ * 
+ * TESTING NOTES:
+ * - Tile updates every 1 minute via runEvery1Minute schedule
+ * - Daily reset at configured time clears logs but preserves schedule
+ * - Debounce settings (1 second) tuned for specific Z-Wave hardware behavior
+ * - Settings changes preserve daily activity logs and child device names
+*/
 
 definition(
     name: "Light Security Monitor",
     namespace: "LSM",
     author: "WarlockWeary + ChatGPT + Grok + Claude",
-    description: "Monitor sensors and multiple locks, control bulbs with color/blink, daily reports, test buttons, and dashboard status tile. Includes grace period and customizable 24-hour report. FIXED duration tracking and time calculations. Added contact sensor debounce.",
+    description: "Wizard setup for LSM. Monitors sensors/locks, controls bulbs, reports.",
     category: "Safety & Security",
     iconUrl: "",
     iconX2Url: "",
@@ -65,7 +69,265 @@ definition(
 )
 
 preferences {
-    page(name: "mainPage")
+    if (state.initialSetupComplete) {
+        page(name: "summaryPage")
+    } else {
+        page(name: "wizardPage1")
+        page(name: "wizardPage2")
+        page(name: "wizardPage3")
+        page(name: "wizardPage4")
+        page(name: "wizardPage5")
+        page(name: "wizardPage6")
+        page(name: "summaryPage")
+    }
+}
+
+// === Wizard Page 1: Welcome + Instance Name ===
+def wizardPage1() {
+    dynamicPage(name: "wizardPage1", title: "<b>-= LIGHT SECURITY MONITOR =-</b><br><b>-= Step 1/6: Instance Name =-</b>", nextPage: "wizardPage2", install: false, uninstall: true) {
+        section("<hr style='background-color:#000000; height: 2px; border: 0;'><b>Introduction</b>") {
+            paragraph "Welcome! This wizard guides setup in steps.\n\nConfigure sensors, lights, notifications, reports, and advanced options.\n\nSummary page follows completion."
+        }
+        section("<hr style='background-color:#000000; height: 2px; border: 0;'><b>Step 1: Instance Name</b>") {
+            input "namePrefix", "text", title: "Add Instance Name - Required (e.g. HOUSE, GARAGE) - SET ONCE THEN DO NOT CHANGE!", required: true, submitOnChange: true
+        }
+    }
+}
+
+// === Wizard Page 2: Devices ===
+def wizardPage2() {
+    dynamicPage(name: "wizardPage2", title: "<b>-= LIGHT SECURITY MONITOR =-</b><br><b>-= Step 2/6: Devices =-</b>", nextPage: "wizardPage3", install: false, uninstall: true) {
+        if (!namePrefix) href "wizardPage1", title: "Back: Instance Name"
+        section("<hr style='background-color:#000000; height: 2px; border: 0;'><b>Select devices to monitor:</b>") {
+            input "contacts", "capability.contactSensor", title: "Contact Sensors", multiple: true, required: true, submitOnChange: true
+            if (contacts) {
+                contacts.each { c ->
+                    input "contactShortName_${c.deviceNetworkId}", "text", title: "Short Name for ${c.displayName}", defaultValue: c.displayName, required: false, submitOnChange: true
+                }
+            }
+            input "locks", "capability.lock", title: "Z-Wave Door Locks", multiple: true, required: true, submitOnChange: true
+            if (locks) {
+                locks.each { l ->
+                    input "lockShortName_${l.deviceNetworkId}", "text", title: "Short Name for ${l.displayName}", defaultValue: l.displayName, required: false, submitOnChange: true
+                }
+            }
+        }
+    }
+}
+
+// === Wizard Page 3: Lights & Colors ===
+def wizardPage3() {
+    dynamicPage(name: "wizardPage3", title: "<b>-= LIGHT SECURITY MONITOR =-</b><br><b>-= Step 3/6: Lights & Colors =-</b>", nextPage: "wizardPage4", install: false, uninstall: true) {
+        if (!contacts || !locks) href "wizardPage2", title: "Back: Devices"
+        section("<hr style='background-color:#000000; height: 2px; border: 0;'><b>Select Light(s) to control:</b>") {
+            input "nightLights", "capability.colorControl", title: "Bulb(s) to Control", multiple: true, required: true, submitOnChange: true
+        }
+        section("<hr style='background-color:#000000; height: 2px; border: 0;'><b>Color & Brightness Settings:</b>") {
+            input "secureColor", "enum", title: "Color when SECURE", options: colorOptions(), defaultValue: "Green", submitOnChange: true
+            input "secureLevel", "number", title: "Brightness for SECURE (0-100)", defaultValue: 100, range: "0..100", submitOnChange: true
+            input "alertColor", "enum", title: "Color when ALERT", options: colorOptions(), defaultValue: "Red", submitOnChange: true
+            input "alertLevel", "number", title: "Brightness for ALERT (0-100)", defaultValue: 100, range: "0..100", submitOnChange: true
+        }
+        section("<hr style='background-color:#000000; height: 2px; border: 0;'><b>Blink Settings:</b>") {
+            input "blinkEnable", "bool", title: "Enable blinking for Alert?", defaultValue: false, submitOnChange: true
+            input "blinkMethod", "enum", title: "Blink Method Command - On/Off OR Flash", options: ["On/Off Toggle", "Flash Command"], defaultValue: "On/Off Toggle", required: false, submitOnChange: true
+            input "blinkStartTime", "time", title: "Blink Only After (start time)", required: false, submitOnChange: true
+            input "blinkEndTime", "time", title: "Stop Blinking (end time)", required: false, submitOnChange: true
+            input "blinkInterval", "enum", title: "Blink Interval (seconds)", options: (1..10).collect { it.toString() }, defaultValue: "2", required: false, submitOnChange: true
+            input "blinkMaxMinutes", "number", title: "Auto-stop blinking after (minutes, 0 = never)", defaultValue: 60, required: false, submitOnChange: true
+        }
+    }
+}
+
+// === Wizard Page 4: Notifications ===
+def wizardPage4() {
+    dynamicPage(name: "wizardPage4", title: "<b>-= LIGHT SECURITY MONITOR =-</b><br><b>-= Step 4/6: Notifications =-</b>", nextPage: "wizardPage5", install: false, uninstall: true) {
+        if (!nightLights) href "wizardPage3", title: "Back: Lights"
+        section("<hr style='background-color:#000000; height: 2px; border: 0;'><b>Notification settings:</b>") {
+            input "gracePeriodMinutes", "number", title: "Grace Period for First Alert (minutes, 0 = immediate)", defaultValue: 15, range: "0..60", submitOnChange: true
+            input "notifyDevices", "capability.notification", title: "Notification Device(s)", multiple: true, required: false, submitOnChange: true
+            input "sendPush", "bool", title: "Send Notifications?", defaultValue: true, submitOnChange: true
+            input "repeatMinutes", "number", title: "Repeat Notification Every (minutes)", defaultValue: 15, submitOnChange: true
+            input "startTime", "time", title: "Notify Only After (start time)", required: true, submitOnChange: true
+            input "endTime", "time", title: "Stop Notify After (end time)", required: true, submitOnChange: true
+        }
+    }
+}
+
+// === Wizard Page 5: Daily Reports ===
+def wizardPage5() {
+    dynamicPage(name: "wizardPage5", title: "<b>-= LIGHT SECURITY MONITOR =-</b><br><b>-= Step 5/6: Daily Reports =-</b>", nextPage: "wizardPage6", install: false, uninstall: true) {
+        if (!startTime || !endTime) href "wizardPage4", title: "Back: Notifications"
+        section("<hr style='background-color:#000000; height: 2px; border: 0;'><b>Daily Report:</b>") {
+            input "dailyReportEnable", "bool", title: "Enable daily report?", defaultValue: false, submitOnChange: true
+            input "dailyReportTime", "time", title: "Daily report time", required: false, submitOnChange: true
+            paragraph "Set the start time for the 24-hour daily report (default 6:00 AM). End time auto-sets 24 hours later."
+            input "dailyReportStartTime", "time", title: "Daily report start time", defaultValue: "06:00 AM", submitOnChange: true
+        }
+    }
+}
+
+// === Wizard Page 6: Advanced + Logging ===
+def wizardPage6() {
+    dynamicPage(name: "wizardPage6", title: "<b>-= LIGHT SECURITY MONITOR =-</b><br><b>-= Step 6/6: Advanced =-</b>", nextPage: "summaryPage", install: false, uninstall: true) {
+        if (!dailyReportEnable) href "wizardPage5", title: "Back: Reports"
+        section("<hr style='background-color:#000000; height: 2px; border: 0;'><b>Advanced Settings:</b>") {
+            input "eventMergeGapSeconds", "number", title: "Debounce-Ignore duplicate lock/unlock events within time window. Seconds (0-10, 0=off)", defaultValue: 1, range: "0..10", required: false, submitOnChange: true
+            input "contactMergeGapSeconds", "number", title: "Debounce-Ignore duplicate contact open/close events within time window. Seconds (0-10, 0=off)", defaultValue: 1, range: "0..10", required: false, submitOnChange: true
+        }
+        section("<hr style='background-color:#000000; height: 2px; border: 0;'><b>Logging:</b>") {
+            input "logEnable", "bool", title: "Enable debug logging?", defaultValue: false, submitOnChange: true
+            input "logAutoDisable", "bool", title: "Auto-disable logging after 30 minutes?", defaultValue: false, submitOnChange: true
+        }
+    }
+}
+
+// === Summary Page: Full Setup ===
+def summaryPage() {
+    dynamicPage(name: "summaryPage", title: "<hr style='background-color:#000000; height: 3px; border: 0;'><b>-= LIGHT SECURITY MONITOR =-</b><br><b>-= CURRENT SETTINGS =-</b><hr style='background-color:#000000; height: 3px; border: 0;'>", install: true, uninstall: true, refreshInterval: 0) {
+        section("") {
+            paragraph getStatusSummary()
+            input name: "btnTestDaily", type: "button", title: "📜 TEST DAILY REPORT"
+            input name: "btnClearLogs", type: "button", title: "🗑️ CLEAR ACTIVITY LOGS"
+        }
+        
+        // Only show namePrefix input during initial setup, display as read-only after
+        if (!state.initialSetupComplete) {
+            section("<b>Select name for monitor:</b>") {
+                input "namePrefix", "text", title: "Add Instance Name - Required (e.g. HOUSE, GARAGE) - THIS CAN NOT BE CHANGED !", required: true, submitOnChange: true
+            }
+     } else {
+        section("<b>YOUR LSM MONITOR INSTANCE:  ${namePrefix?.toUpperCase()}</b>") {
+        paragraph "<hr style='background-color:#000000; height: 3px; border: 0; margin-top: 10px; margin-bottom: 10px;'>"
+        paragraph "<b>LIGHT SECURITY MONITOR - CHANGE SETTINGS</b>"
+        paragraph "<hr style='background-color:#000000; height: 3px; border: 0; margin-top: 10px; margin-bottom: 10px;'>"
+    }
+}
+        
+        section("<b>Select devices to monitor:</b>") {
+            input "contacts", "capability.contactSensor", title: "Contact Sensors", multiple: true, required: true, submitOnChange: true
+            if (contacts) {
+                contacts.each { c ->
+                    input "contactShortName_${c.deviceNetworkId}", "text", title: "Short Name for ${c.displayName}", defaultValue: c.displayName, required: false, submitOnChange: true
+                }
+            }
+            input "locks", "capability.lock", title: "Z-Wave Door Locks", multiple: true, required: true, submitOnChange: true
+            if (locks) {
+                locks.each { l ->
+                    input "lockShortName_${l.deviceNetworkId}", "text", title: "Short Name for ${l.displayName}", defaultValue: l.displayName, required: false, submitOnChange: true
+                }
+            }
+        }
+        section("<hr style='background-color:#000000; height: 2px; border: 0; margin-top: 10px; margin-bottom: 10px;'><b>Select Light(s) to control:</b>") {
+            input "nightLights", "capability.colorControl", title: "Bulb(s) to Control", multiple: true, required: true, submitOnChange: true
+        }
+        section("<hr style='background-color:#000000; height: 2px; border: 0; margin-top: 10px; margin-bottom: 10px;'><b>Color & Brightness Settings:</b>") {
+            input "secureColor", "enum", title: "Color when SECURE", options: colorOptions(), defaultValue: "Green", submitOnChange: true
+            input "secureLevel", "number", title: "Brightness for SECURE (0-100)", defaultValue: 100, range: "0..100", submitOnChange: true
+            input "alertColor", "enum", title: "Color when ALERT", options: colorOptions(), defaultValue: "Red", submitOnChange: true
+            input "alertLevel", "number", title: "Brightness for ALERT (0-100)", defaultValue: 100, range: "0..100", submitOnChange: true
+        }
+		section("<hr style='background-color:#000000; height: 2px; border: 0; margin-top: 10px; margin-bottom: 10px;'><b>Blink Settings:</b>") {
+			input "blinkEnable", "bool", title: "Enable blinking for Alert?", defaultValue: false, submitOnChange: true
+			input "blinkMethod", "enum", title: "Blink Method Command - On/Off OR Flash", options: ["On/Off Toggle", "Flash Command"], defaultValue: "On/Off Toggle", required: false, submitOnChange: true
+			input "blinkStartTime", "time", title: "Blink Only After (start time)", required: false, submitOnChange: true
+			input "blinkEndTime", "time", title: "Stop Blinking (end time)", required: false, submitOnChange: true
+			input "blinkInterval", "enum", title: "Blink Interval (seconds)", options: (1..10).collect { it.toString() }, defaultValue: "2", required: false, submitOnChange: true
+			input "blinkMaxMinutes", "number", title: "Auto-stop blinking after (minutes, 0 = never)", defaultValue: 60, required: false, submitOnChange: true
+		}
+        section("<hr style='background-color:#000000; height: 2px; border: 0; margin-top: 10px; margin-bottom: 10px;'><b>Notification settings:</b>") {
+            input "gracePeriodMinutes", "number", title: "Grace Period for First Alert (minutes, 0 = immediate)", defaultValue: 15, range: "0..60", submitOnChange: true
+            input "notifyDevices", "capability.notification", title: "Notification Device(s)", multiple: true, required: false, submitOnChange: true
+            input "sendPush", "bool", title: "Send Notifications?", defaultValue: true, submitOnChange: true
+            input "repeatMinutes", "number", title: "Repeat Notification Every (minutes)", defaultValue: 15, submitOnChange: true
+            input "startTime", "time", title: "Notify Only After (start time)", required: true, submitOnChange: true
+            input "endTime", "time", title: "Stop Notify After (end time)", required: true, submitOnChange: true
+        }
+        section("<hr style='background-color:#000000; height: 2px; border: 0; margin-top: 10px; margin-bottom: 10px;'><b>Daily Report:</b>") {
+            input "dailyReportEnable", "bool", title: "Enable daily report?", defaultValue: false, submitOnChange: true
+            input "dailyReportTime", "time", title: "Daily report time", required: false, submitOnChange: true
+            paragraph "Set the start time for the 24-hour daily report (default 6:00 AM). End time auto-sets 24 hours later."
+            input "dailyReportStartTime", "time", title: "Daily report start time", defaultValue: "06:00 AM", submitOnChange: true
+        }
+        section("<hr style='background-color:#000000; height: 2px; border: 0; margin-top: 10px; margin-bottom: 10px;'><b>Advanced Settings:</b>") {
+            input "eventMergeGapSeconds", "number", title: "Debounce-Ignore duplicate lock/unlock events within time window. Seconds (0-10, 0=off)", defaultValue: 1, range: "0..10", required: false, submitOnChange: true
+            input "contactMergeGapSeconds", "number", title: "Debounce-Ignore duplicate contact open/close events within time window. Seconds (0-10, 0=off)", defaultValue: 1, range: "0..10", required: false, submitOnChange: true
+        }
+        section("<hr style='background-color:#000000; height: 2px; border: 0; margin-top: 10px; margin-bottom: 10px;'><b>Logging:</b>") {
+            input "logEnable", "bool", title: "Enable debug logging?", defaultValue: false, submitOnChange: true
+            input "logAutoDisable", "bool", title: "Auto-disable logging after 30 minutes?", defaultValue: false, submitOnChange: true
+        }
+        section("<hr style='background-color:#000000; height: 2px; border: 0; margin-top: 10px; margin-bottom: 10px;'><b>Wizard Reset:</b>") {
+            input "resetWizard", "bool", title: "Re-run setup wizard on next open?", defaultValue: false
+        }
+    }
+}
+
+// === Installed/Updated ===
+def installed() {
+    state.initialSetupComplete = true
+    initialize()
+}
+
+def updated() {
+    unsubscribe()
+    unschedule()
+    if (resetWizard) {
+        state.initialSetupComplete = false
+        app.updateSetting("resetWizard", [value: "false", type: "bool"])  // Auto-reset the toggle
+    } else {
+        state.initialSetupComplete = true
+    }
+    initialize()
+    if (logAutoDisable) runIn(1800, scheduleLogDisable)
+}
+
+// === Initialize ===
+def initialize() {
+    getTileDevice()
+    
+    // EZ Dashboard Child Device
+    def ezChild = getChildDevice("${app.id}-EZTile")
+    if (!ezChild) {
+        try {
+            ezChild = addChildDevice("LSM", "LSM EZ Tile Device", "${app.id}-EZTile",
+                [name: "LSM EZ TILE - ${namePrefix?.toUpperCase() ?: app.label.toUpperCase()}", isComponent: true])
+            logInfo("Created EZ Dashboard child device: ${ezChild.displayName}")
+        } catch (e) {
+            log.error "Failed to create EZ Dashboard child device: ${e}"
+        }
+    }
+    
+    // Report Button Child Device
+    def button = getChildDevice("LSM-BTN-${app.id}")
+    if (!button) {
+        try {
+            button = addChildDevice("LSM", "LSM Report Button", "LSM-BTN-${app.id}",
+                [name: "LSM REPORT BUTTON - ${namePrefix?.toUpperCase() ?: app.label.toUpperCase()}"])
+            logInfo("Created report button device: ${button.displayName}")
+        } catch (e) {
+            log.error "Failed to create report button device: ${e}"
+        }
+    }
+    
+    subscribe(contacts, "contact", eventHandler)
+    locks?.each { lock -> subscribe(lock, "lock", eventHandler) }
+    subscribe(button, "pushed", reportButtonHandler)
+    
+    runEvery1Minute("updateStatusTileLive")  // Always establish tile updates
+    runIn(2, checkStatus)
+    if (dailyReportEnable && dailyReportTime) schedule(dailyReportTime, sendDailyReport)
+
+    if (!dailyReportStartTime) app.updateSetting("dailyReportStartTime", [value: "06:00 AM", type: "time"])
+    unschedule("dailyResetClear")
+    schedule(dailyReportStartTime ?: "06:00 AM", dailyResetClear)
+
+    // Only initialize state variables if they don't exist (first run)
+    if (state.previousSecure == null) state.previousSecure = null
+    if (state.lastNotificationTime == null) state.lastNotificationTime = null
+    if (state.alarmLog == null) state.alarmLog = []
+    if (state.notifyLog == null) state.notifyLog = []
+    logInfo("Initialized")
 }
 
 // === Utility: Color Options ===
@@ -81,7 +343,7 @@ def getTileDevice() {
     def child = getChildDevice("LSM-${app.id}")
     if (!child) {
         try {
-            child = addChildDevice("LSM", "LSM Tile Device", "LSM-${app.id}",
+                child = addChildDevice("LSM", "LSM Tile Device", "LSM-${app.id}",
                 [name: "LSM TILE - ${namePrefix?.toUpperCase() ?: app.label.toUpperCase()}", isComponent: true])
             logInfo("Created child device: ${child.displayName}")
         } catch (e) {
@@ -96,12 +358,12 @@ def getLockShortName(deviceId) {
     return settings."lockShortName_${deviceId}"
 }
 
-// === Helper: Contact Short Name by deviceNetworkId ===
+// === Helper: Contact Short Name ===
 def getContactShortName(deviceId) {
     return settings."contactShortName_${deviceId}"
 }
 
-// === Helper: Resolve displayName -> short name (works for locks or contacts) ===
+// === Helper: Resolve displayName -> short name ===
 def toShortLabel(displayName) {
     def ld = locks?.find { it.displayName == displayName }
     if (ld) return getLockShortName(ld.deviceNetworkId) ?: displayName
@@ -112,7 +374,7 @@ def toShortLabel(displayName) {
     return displayName
 }
 
-// === Helper: Format Seconds as hh mm ss (clamp negatives) ===
+// === Helper: Format Seconds as hh mm ss ===
 def fmtTime(totalSeconds) {
     int s = Math.max(0, (totalSeconds ?: 0) as int)
     def hours = (s / 3600) as int
@@ -121,7 +383,7 @@ def fmtTime(totalSeconds) {
     return String.format("%02dh %02dm %02ds", hours, minutes, seconds)
 }
 
-// === UNIFIED TIME CALCULATION (sums device activity times) ===
+// === UNIFIED TIME CALCULATION ===
 def calculateSecureTime(windowStart, windowEnd) {
     def results = [:]
     long startMs = (windowStart as long)
@@ -129,7 +391,7 @@ def calculateSecureTime(windowStart, windowEnd) {
     int totalSeconds = Math.max(0, ((endMs - startMs) / 1000L) as int)
 
     def deviceActivity = [:]
-    long nowMs = now()   // <-- FIX: capture "now" once for active entries
+    long nowMs = now()
 
     (state.alarmLog ?: []).each { entry ->
         if (!entry?.start) return
@@ -140,7 +402,6 @@ def calculateSecureTime(windowStart, windowEnd) {
 
         long s = Math.max(eStart0, startMs)
 
-        // FIX: If entry is still open (end == null), cap at "now" instead of endMs
         long e
         if (eEnd0 != null) {
             e = Math.min(eEnd0, endMs)
@@ -157,7 +418,6 @@ def calculateSecureTime(windowStart, windowEnd) {
         deviceActivity[k].seconds += secs
     }
 
-    // Sum individual device times for unsecure time
     int unsecureSeconds = deviceActivity.collect { it.value.seconds }.sum() ?: 0
     int secureSeconds = Math.max(0, totalSeconds - unsecureSeconds)
     int securePct = totalSeconds > 0 ? Math.round(secureSeconds * 100.0 / totalSeconds) as int : 100
@@ -170,53 +430,59 @@ def calculateSecureTime(windowStart, windowEnd) {
     return results
 }
 
-
 // === Status Summary for Setup Page ===
 def getStatusSummary() {
     def sb = ""
-    sb += "🔒 <b>MONITOR SENSORS:</b><br>"
-
-    // Contacts: show Short (original: Full) when short differs
+    sb += "👁️ <b>MONITORING SENSORS:</b><br>"
+    
     if (contacts) {
         contacts.each { c ->
             def shortLabel = getContactShortName(c.deviceNetworkId)
             if (shortLabel && shortLabel.trim() && shortLabel != c.displayName) {
-                sb += "&nbsp;&nbsp;${shortLabel} <i>(original: ${c.displayName})</i><br>"
+                sb += "&nbsp;&nbsp;<b>CONTACT:</b> ${shortLabel} - ( Original: ${c.displayName} )<br>"
             } else {
-                sb += "&nbsp;&nbsp;${c.displayName}<br>"
+                sb += "&nbsp;&nbsp;<b>CONTACT:</b> ${c.displayName}<br>"
             }
         }
     }
-
-    // Locks: show Short (original: Full) when short differs
+    
     if (locks) {
         locks.each { l ->
             def shortLabel = getLockShortName(l.deviceNetworkId)
             if (shortLabel && shortLabel.trim() && shortLabel != l.displayName) {
-                sb += "&nbsp;&nbsp;${shortLabel} <i>(original: ${l.displayName})</i><br>"
+                sb += "&nbsp;&nbsp;<b>LOCK:</b> ${shortLabel} - ( Original: ${l.displayName} )<br>"
             } else {
-                sb += "&nbsp;&nbsp;${l.displayName}<br>"
+                sb += "&nbsp;&nbsp;<b>LOCK:</b> ${l.displayName}<br>"
             }
         }
     }
-
+    
     sb += "<br>"
-    sb += "🌟 <b>LIGHT(S):</b><br>"
-    if (nightLights) nightLights.each { sb += "&nbsp;&nbsp;${it.displayName}<br>" }
-    else sb += "&nbsp;&nbsp;Not Set<br>"
+    sb += "🌟 <b>CONTROLLING LIGHTS:</b><br>"
+    if (nightLights) {
+        nightLights.each { 
+            sb += "&nbsp;&nbsp;<b>LIGHT:</b> ${it.displayName}<br>" 
+        }
+    } else {
+        sb += "&nbsp;&nbsp;Not Set<br>"
+    }
+    
     sb += "<br>"
     sb += "🔐 <b>SECURE:</b> ${(secureColor ?: "Green").toUpperCase()} AT ${(secureLevel ?: 100)}%<br>"
     sb += "❌ <b>ALERT:</b> ${(alertColor ?: "Red").toUpperCase()} AT ${(alertLevel ?: 100)}%<br><br>"
-
+    
     if (blinkEnable) {
         def stopText = (blinkMaxMinutes == 0) ? "NEVER" : "AUTO-STOP AFTER ${blinkMaxMinutes ?: 10}M"
-        sb += "🚨 <b>BLINKING:</b> EVERY ${blinkInterval ?: 3}S (${stopText})<br>"
+        def method = blinkMethod ?: "On/Off Toggle"
+        sb += "🚨 <b>BLINKING:</b> ${method.toUpperCase()} - EVERY ${blinkInterval ?: 3}S (${stopText})<br>"
         def bStart = blinkStartTime ? timeToday(blinkStartTime, location.timeZone) : null
         def bEnd = blinkEndTime ? timeToday(blinkEndTime, location.timeZone) : null
         if (bStart && bEnd) sb += "&nbsp;&nbsp;<b>TIME LIMIT:</b> ${bStart.format('h:mm a')} – ${bEnd.format('h:mm a')}<br>"
         sb += "<br>"
-    } else sb += "🚨 <b>BLINKING:</b> DISABLED<br><br>"
-
+    } else {
+        sb += "🚨 <b>BLINKING:</b> DISABLED<br><br>"
+    }
+    
     if (sendPush) {
         sb += "📲 <b>NOTIFICATIONS:</b> ENABLED EVERY ${(repeatMinutes ?: 15)}M"
         def grace = gracePeriodMinutes ?: 0
@@ -225,92 +491,16 @@ def getStatusSummary() {
         def nEnd = endTime ? timeToday(endTime, location.timeZone) : null
         if (nStart && nEnd) sb += "<br>&nbsp;&nbsp;<b>TIME LIMIT:</b> ${nStart.format('h:mm a')} – ${nEnd.format('h:mm a')}"
         sb += "<br><br>"
-    } else sb += "📲 <b>NOTIFICATIONS:</b> DISABLED<br><br>"
-
+    } else {
+        sb += "📲 <b>NOTIFICATIONS:</b> DISABLED<br><br>"
+    }
+    
     def daily = dailyReportTime ? timeToday(dailyReportTime, location.timeZone) : null
     sb += "📜 <b>DAILY REPORT:</b> ${dailyReportEnable && daily ? "ENABLED AT ${daily.format('h:mm a')}" : "DISABLED"}<br><br>"
     sb += "📝 <b>LOGGING:</b> ${logEnable ? "ENABLED" : "DISABLED"} (AUTO-DISABLE: ${logAutoDisable ? "YES" : "NO"})<br><br>"
     if (state.lastCheck) sb += "📅 <b>LAST CHECK:</b> ${state.lastCheck}<br>"
+    
     return sb
-}
-
-// === Setup Page ===
-def mainPage() {
-    dynamicPage(name: "mainPage", title: "<b>Light Security Monitor Setup</b>", install: true, uninstall: true, refreshInterval: 0) {
-        section("") {
-            paragraph getStatusSummary()
-            input name: "btnTestDaily", type: "button", title: "📜 TEST DAILY REPORT"
-            input name: "btnClearLogs", type: "button", title: "🗑️ CLEAR ACTIVITY LOGS"
-        }
-        section("<b>Select name for monitor:</b>") {
-            input "namePrefix", "text", title: "Add Instance Name - Required (e.g. HOUSE, GARAGE)", required: true, submitOnChange: true
-        }
-        section("<b>Select devices to monitor:</b>") {
-            input "contacts", "capability.contactSensor", title: "Contact Sensors", multiple: true, required: true, submitOnChange: true
-            input "locks", "capability.lock", title: "Z-Wave Door Locks", multiple: true, required: true, submitOnChange: true
-
-            // Per-contact short names (optional)
-            if (contacts) {
-                contacts.each { c ->
-                    input "contactShortName_${c.deviceNetworkId}", "text",
-                          title: "Short Name for ${c.displayName}",
-                          defaultValue: c.displayName, required: false, submitOnChange: true
-                }
-            }
-
-            // Per-lock short names (optional)
-            if (locks) {
-                locks.each { lock ->
-                    input "lockShortName_${lock.deviceNetworkId}", "text",
-                          title: "Short Name for ${lock.displayName}",
-                          defaultValue: lock.displayName, required: false, submitOnChange: true
-                }
-            }
-        }
-        section("<b>Select device(s) to control:</b>") {
-            input "nightLights", "capability.colorControl", title: "Bulb(s) to Control", multiple: true, required: true, submitOnChange: true
-        }
-        section("<b>Color & Brightness Settings:</b>") {
-            input "secureColor", "enum", title: "Color when SECURE", options: colorOptions(), defaultValue: "Green", submitOnChange: true
-            input "secureLevel", "number", title: "Brightness for SECURE (0-100)", defaultValue: 100, range: "0..100", submitOnChange: true
-            input "alertColor", "enum", title: "Color when ALERT", options: colorOptions(), defaultValue: "Red", submitOnChange: true
-            input "alertLevel", "number", title: "Brightness for ALERT (0-100)", defaultValue: 100, range: "0..100", submitOnChange: true
-        }
-        section("<b>Blink Settings:</b>") {
-            input "blinkEnable", "bool", title: "Enable blinking for Alert?", defaultValue: false, submitOnChange: true
-            input "blinkStartTime", "time", title: "Blink Only After (start time)", required: false, submitOnChange: true
-            input "blinkEndTime", "time", title: "Stop Blinking (end time)", required: false, submitOnChange: true
-            input "blinkInterval", "enum", title: "Blink Interval (seconds)", options: (1..10).collect { it.toString() }, defaultValue: "2", required: false, submitOnChange: true
-            input "blinkMaxMinutes", "number", title: "Auto-stop blinking after (minutes, 0 = never)", defaultValue: 60, required: false, submitOnChange: true
-        }
-        section("<b>Notification settings:</b>") {
-            input "gracePeriodMinutes", "number", title: "Grace Period for First Alert (minutes, 0 = immediate)", defaultValue: 15, range: "0..60", submitOnChange: true
-            input "notifyDevices", "capability.notification", title: "Notification Device(s)", multiple: true, required: false, submitOnChange: true
-            input "sendPush", "bool", title: "Send Notifications?", defaultValue: true, submitOnChange: true
-            input "repeatMinutes", "number", title: "Repeat Notification Every (minutes)", defaultValue: 15, submitOnChange: true
-            input "startTime", "time", title: "Notify Only After (start time)", required: true, submitOnChange: true
-            input "endTime", "time", title: "Stop Notify After (end time)", required: true, submitOnChange: true
-        }
-        section("<b>Daily Report:</b>") {
-            input "dailyReportEnable", "bool", title: "Enable daily report?", defaultValue: false, submitOnChange: true
-            input "dailyReportTime", "time", title: "Daily report time", required: false, submitOnChange: true
-            paragraph "Set the start time for the 24-hour daily report (default 6:00 AM). End time auto-sets 24 hours later."
-            input "dailyReportStartTime", "time", title: "Daily report start time", defaultValue: "06:00 AM", submitOnChange: true
-        }
-        section("<b>Advanced Settings:</b>") {
-            input "eventMergeGapSeconds", "number",
-                title: "Debounce-Ignore duplicate lock/unlock events within time window. Seconds (0-120, 0=off)",
-                defaultValue: 10, range: "0..120", required: false, submitOnChange: true
-            
-            input "contactMergeGapSeconds", "number",
-                title: "Debounce-Ignore duplicate contact open/close events within time window. Seconds (0-120, 0=off)",
-                defaultValue: 3, range: "0..120", required: false, submitOnChange: true
-        }
-        section("<b>Logging:</b>") {
-            input "logEnable", "bool", title: "Enable debug logging?", defaultValue: false, submitOnChange: true
-            input "logAutoDisable", "bool", title: "Auto-disable logging after 30 minutes?", defaultValue: false, submitOnChange: true
-        }
-    }
 }
 
 // === Time Windows ===
@@ -346,7 +536,7 @@ def sendDailyReport(clearLogs = false) {
 
     def timeData = calculateSecureTime(start, end)
     def deviceActivity = timeData.deviceActivity
-    def totalOpens = deviceActivity.collect { (it.value.count ?: 0) }.sum() ?: 0   // NEW
+    def totalOpens = deviceActivity.collect { (it.value.count ?: 0) }.sum() ?: 0
 
     def report = [
         "📜 LSM Daily Report (${nowStr})",
@@ -355,7 +545,7 @@ def sendDailyReport(clearLogs = false) {
         "TOTAL: ${fmtTime(timeData.secureSeconds)} (${timeData.securePct}% - 24h)",
         "DEVICES OPEN: ${fmtTime(timeData.unsecureSeconds)}",
         "",
-        "== DEVICE ACTIVITY (${deviceActivity.size()}x)-(${totalOpens}x) =="   // UPDATED
+        "== DEVICE ACTIVITY (${deviceActivity.size()}x)-(${totalOpens}x) =="
     ]
 
     if (deviceActivity.size() == 0) {
@@ -390,18 +580,15 @@ def sendDailyReportForce(clearLogs = false) {
     def end = start + (24L * 60L * 60L * 1000L)
 
     def timeData = calculateSecureTime(start, end)
-    def secureSeconds = timeData.secureSeconds
-    def unsecureSeconds = timeData.unsecureSeconds
-    def securePct = timeData.securePct
     def deviceActivity = timeData.deviceActivity
-    def totalOpens = deviceActivity.collect { (it.value.count ?: 0) }.sum() ?: 0   // NEW
+    def totalOpens = deviceActivity.collect { (it.value.count ?: 0) }.sum() ?: 0
 
     def report = ["📜 LSM Daily Report (${nowStr})", ""]
     report << "== SECURE/UNSECURE TIME =="
-    report << "TOTAL: ${fmtTime(secureSeconds)} (${securePct}% - 24h)"
-    report << "DEVICES OPEN: ${fmtTime(unsecureSeconds)}"
+    report << "TOTAL: ${fmtTime(timeData.secureSeconds)} (${timeData.securePct}% - 24h)"
+    report << "DEVICES OPEN: ${fmtTime(timeData.unsecureSeconds)}"
     report << ""
-    report << "== DEVICE ACTIVITY (${deviceActivity.size()}x)-(${totalOpens}x) =="   // UPDATED
+    report << "== DEVICE ACTIVITY (${deviceActivity.size()}x)-(${totalOpens}x) =="
 
     if (deviceActivity.size() == 0) {
         report << "No activity recorded"
@@ -414,7 +601,7 @@ def sendDailyReportForce(clearLogs = false) {
 
     def msg = report.join("\n")
     sendMessage(msg)
-    logInfo("📜 Daily Report sent - Secure: ${fmtTime(secureSeconds)} (${securePct}%)")
+    logInfo("📜 Daily Report sent - Secure: ${fmtTime(timeData.secureSeconds)} (${timeData.securePct}%)")
 
     if (clearLogs) {
         state.alarmLog = []
@@ -433,8 +620,9 @@ def updateStatusTile() {
     def tz = (location?.timeZone) ?: TimeZone.getDefault()
     def now = new Date()
     def currentTime = now.time
+    state.lastTileUpdate = now.format("MMM d yyyy hh:mm a", tz)  // Add this
 
-    // === Daily-window (6AM anchor) for the "Secure Since" section ===
+    // Daily-window
     def reportStartTime = timeToday(dailyReportStartTime ?: "06:00 AM", tz)
     if (now.before(reportStartTime)) {
         use(groovy.time.TimeCategory) { reportStartTime = reportStartTime - 1.day }
@@ -442,12 +630,12 @@ def updateStatusTile() {
     def dailyWindowStart = reportStartTime.time
     def reportStartStr = reportStartTime.format('h:mm a', tz)
 
-    // === Rolling 24h window for the % shown on "ALL DEVICES SECURE" line ===
+    // Rolling 24h
     def rollingStart = currentTime - (24L * 60L * 60L * 1000L)
     def timeDataDaily = calculateSecureTime(dailyWindowStart, currentTime)
     def timeDataRolling = calculateSecureTime(rollingStart, currentTime)
 
-    // Active session times for currently open/unlocked devices
+    // Active sessions
     def activeSessions = [:]
     def entries = state.alarmLog ?: []
     def activeEntries = entries.findAll { !it.end }
@@ -458,7 +646,7 @@ def updateStatusTile() {
         activeSessions[entry.device] = dur
     }
 
-    // Calculate lock and contact activity totals
+    // Lock/Contact activity
     def lockActivity = [seconds: 0, count: 0]
     def contactActivity = [seconds: 0, count: 0]
     timeDataDaily.deviceActivity.each { dev, data ->
@@ -472,73 +660,62 @@ def updateStatusTile() {
         }
     }
 
-    // Always calculate totalOpens
     def totalOpens = (timeDataDaily.deviceActivity?.collect { (it.value?.count ?: 0) }?.sum() ?: 0) as Integer
 
-    // Build status section
+    // Build tile
     def headerIcon = openDevs || unlockedLocks ? "❌" : "✅"
     def tile = "${headerIcon} SECURITY MONITOR STATUS<br>"
     def deviceLines = []
 
     if (openDevs || unlockedLocks) {
-        // Unsecure state: List individual devices
         if (unlockedLocks) {
             unlockedLocks.each { name ->
                 def shortName = getLockShortName(locks.find { it.displayName == name }?.deviceNetworkId) ?: name
                 def activeTime = activeSessions[name] ?: 0
                 def todayCount = timeDataDaily.deviceActivity[name]?.count ?: 0
-                deviceLines << "LOCK: ${shortName} (${todayCount}x) (${fmtTime(activeTime)})"
+                deviceLines << "OL: ${shortName} (${todayCount}x) (${fmtTime(activeTime)})"
             }
         }
         if (openDevs) {
             openDevs.each { name ->
                 def activeTime = activeSessions[name] ?: 0
                 def todayCount = timeDataDaily.deviceActivity[name]?.count ?: 0
-                deviceLines << "CONTACT: ${toShortLabel(name)} (${todayCount}x) (${fmtTime(activeTime)})"
+                deviceLines << "OC: ${toShortLabel(name)} (${todayCount}x) (${fmtTime(activeTime)})"
             }
         }
     } else {
-        // Secure state: Show secure status with percentage
         tile += "✅ ALL DEVICES SECURE - ${timeDataRolling.securePct}%<br>"
     }
 
-    // Separator
     tile += "──────────────────────<br>"
 
-    // Device lines (only for unsecure)
     deviceLines.each { line -> tile += "${line}<br>" }
     if (deviceLines.size() > 0) tile += "<br>"
 
-    // === Secure-only summary ===
-    if (openDevs.isEmpty() && unlockedLocks.isEmpty()) {
-        tile += "System Secure: ${reportStartStr} · (${fmtTime(timeDataDaily.secureSeconds)})<br>"
-        tile += "Device Totals: (${totalOpens}x) (${fmtTime(timeDataDaily.unsecureSeconds)})<br>"
-        tile += "Lock Activity: (${lockActivity.count}x) (${fmtTime(lockActivity.seconds)})<br>"
-        tile += "Contact Activity: (${contactActivity.count}x) (${fmtTime(contactActivity.seconds)})<br>"
-        def nStart = startTime ? timeToday(startTime, location.timeZone) : null
-        def nEnd = endTime ? timeToday(endTime, location.timeZone) : null
-        def notifyStatus = sendPush ?
-            "ON (${repeatMinutes ?: 15}m)" + (nStart && nEnd ? " ${nStart.format('h:mm a')} – ${nEnd.format('h:mm a')}" : "") :
-            "OFF"
-        def bStart = blinkStartTime ? timeToday(blinkStartTime, location.timeZone) : null
-        def bEnd = blinkEndTime ? timeToday(blinkEndTime, location.timeZone) : null
-        def blinkStatus = blinkEnable ?
-            "ON (${blinkInterval ?: 3}s)" + (bStart && bEnd ? " ${bStart.format('h:mm a')} – ${bEnd.format('h:mm a')}" : "") :
-            "OFF"
-        tile += "Notifications: ${notifyStatus}<br>"
-        tile += "Blinking: ${blinkStatus}<br>"
-    } else {
-        // === Unsecure summary (no System Secure) ===
+if (openDevs.isEmpty() && unlockedLocks.isEmpty()) {
+    tile += "Secure Today: ${reportStartStr} · (${fmtTime(timeDataDaily.secureSeconds)})<br>"
+    tile += "Device Totals: (${totalOpens}x) (${fmtTime(timeDataDaily.unsecureSeconds)})<br>"
+    tile += "Lock Activity: (${lockActivity.count}x) (${fmtTime(lockActivity.seconds)})<br>"
+    tile += "Contact Activity: (${contactActivity.count}x) (${fmtTime(contactActivity.seconds)})<br>"
+    def nStart = startTime ? timeToday(startTime, location.timeZone) : null
+    def nEnd = endTime ? timeToday(endTime, location.timeZone) : null
+    def notifyStatus = sendPush ? "ON (${repeatMinutes ?: 15}m)" + (nStart && nEnd ? " ${nStart.format('h:mm a')} – ${nEnd.format('h:mm a')}" : "") : "OFF"
+    def bStart = blinkStartTime ? timeToday(blinkStartTime, location.timeZone) : null
+    def bEnd = blinkEndTime ? timeToday(blinkEndTime, location.timeZone) : null
+    def blinkStatus = blinkEnable ? "ON (${blinkInterval ?: 3}s)" + (bStart && bEnd ? " ${bStart.format('h:mm a')} – ${bEnd.format('h:mm a')}" : "") : "OFF"
+    tile += "Notifications: ${notifyStatus}<br>"
+    tile += "Blinking: ${blinkStatus}<br>"
+    if (state.lastTileUpdate) tile += "Last Update: ${state.lastTileUpdate}<br>"
+} else {
         tile += "Device Totals: (${totalOpens}x) (${fmtTime(timeDataDaily.unsecureSeconds)})<br>"
         tile += "Lock Activity: (${lockActivity.count}x) (${fmtTime(lockActivity.seconds)})<br>"
         tile += "Contact Activity: (${contactActivity.count}x) (${fmtTime(contactActivity.seconds)})<br>"
     }
 
-    // Send to Legacy Tile Device
     child.sendEvent(name: "statusTile", value: tile, isStateChange: true)
     child.sendEvent(name: "image", value: tile, isStateChange: true)
 
-    // === EZ Dashboard Child Device Support ===
+    // EZ Dashboard
     def ezChild = getChildDevice("${app.id}-EZTile")
     if (ezChild) {
         def allSecure = (openDevs.isEmpty() && unlockedLocks.isEmpty())
@@ -548,16 +725,16 @@ def updateStatusTile() {
         def totalUnsecureCount = currentLockCount + currentContactCount
         def unsecuredTimeFormatted = fmtTime(timeDataDaily.unsecureSeconds)
 
-        // Format lock/contact activity for EZ tile
         def lockActivityStr = "(${lockActivity.count}x) (${fmtTime(lockActivity.seconds)})"
         def contactActivityStr = "(${contactActivity.count}x) (${fmtTime(contactActivity.seconds)})"
 
-// ➕ NEW: build name lists
         def lockNames = unlockedLocks?.collect { name ->
-        getLockShortName(locks.find { it.displayName == name }?.deviceNetworkId) ?: name }?.join(", ") ?: ""
+            getLockShortName(locks.find { it.displayName == name }?.deviceNetworkId) ?: name
+        }?.join(", ") ?: ""
 
         def contactNames = openDevs?.collect { name ->
-        toShortLabel(name) ?: name }?.join(", ") ?: ""
+            toShortLabel(name) ?: name
+        }?.join(", ") ?: ""
 
         ezChild.setSecureState(
             allSecure,
@@ -575,62 +752,27 @@ def updateStatusTile() {
     }
 }
 
-// === Installed/Updated ===
-def installed() { initialize() }
-def updated() {
-    unsubscribe()
-    unschedule()
-    initialize()
-    if (logAutoDisable) runIn(1800, scheduleLogDisable)
-}
-
-// === Initialize ===
-def initialize() {
-    getTileDevice()
+// === Live Dashboard Update ===
+def updateStatusTileLive() {
+    updateStatusTile()
     
-    // === EZ Dashboard Child Device Creation ===
-    def ezChild = getChildDevice("${app.id}-EZTile")
-    if (!ezChild) {
-        try {
-            ezChild = addChildDevice("LSM", "LSM EZ Tile Device", "${app.id}-EZTile",
-                [name: "LSM EZ TILE - ${namePrefix?.toUpperCase() ?: app.label.toUpperCase()}", isComponent: true])
-            logInfo("Created EZ Dashboard child device: ${ezChild.displayName}")
-        } catch (e) {
-            log.error "Failed to create EZ Dashboard child device: ${e}"
+    def anyOpen = contacts?.any { it.currentValue("contact") == "open" }
+    def anyUnlocked = locks?.any { it.currentValue("lock") == "unlocked" }
+    
+    if (anyOpen || anyUnlocked) {
+        if (sendPush && inTimeWindow() && !state.notificationInitiated) {
+            logInfo("🔔 Starting notification cycle for already-open devices")
+            state.notificationInitiated = true
+            scheduleNotification()
         }
     }
-    
-    def button = getChildDevice("LSM-BTN-${app.id}")
-    if (!button) {
-        try {
-            button = addChildDevice("LSM", "LSM Report Button", "LSM-BTN-${app.id}",
-                [name: "LSM REPORT BUTTON - ${namePrefix?.toUpperCase() ?: app.label.toUpperCase()}"])
-            logInfo("Created report button device: ${button.displayName}")
-        } catch (e) {
-            log.error "Failed to create report button device: ${e}"
-        }
-    }
-    subscribe(contacts, "contact", eventHandler)
-    locks?.each { lock -> subscribe(lock, "lock", eventHandler) }
-    subscribe(button, "pushed", reportButtonHandler)
-    runIn(2, checkStatus)
-    if (dailyReportEnable && dailyReportTime) schedule(dailyReportTime, sendDailyReport)
-
-    if (!dailyReportStartTime) app.updateSetting("dailyReportStartTime", [value: "06:00 AM", type: "time"])
-    unschedule("dailyResetClear")
-    schedule(dailyReportStartTime ?: "06:00 AM", dailyResetClear)
-
-    state.previousSecure = null
-    state.lastNotificationTime = null
-    logInfo("Initialized")
 }
 
-// Helper for lock debounce
+// === Debounce Helpers ===
 private boolean reopenIfRecentLock(String deviceName, long nowMs) {
     int gapSec = (eventMergeGapSeconds ?: 10) as Integer
     if (gapSec <= 0) return false
-    def lastClosed = (state.alarmLog ?: []).reverse()
-        .find { it.device == deviceName && it.end }
+    def lastClosed = (state.alarmLog ?: []).reverse().find { it.device == deviceName && it.end }
     if (!lastClosed) return false
     long gap = (nowMs - (lastClosed.end as Long)) / 1000
     if (gap >= 0 && gap <= gapSec) {
@@ -640,12 +782,10 @@ private boolean reopenIfRecentLock(String deviceName, long nowMs) {
     return false
 }
 
-// Helper for contact debounce
 private boolean reopenIfRecentContact(String deviceName, long nowMs) {
     int gapSec = (contactMergeGapSeconds ?: 3) as Integer
     if (gapSec <= 0) return false
-    def lastClosed = (state.alarmLog ?: []).reverse()
-        .find { it.device == deviceName && it.end }
+    def lastClosed = (state.alarmLog ?: []).reverse().find { it.device == deviceName && it.end }
     if (!lastClosed) return false
     long gap = (nowMs - (lastClosed.end as Long)) / 1000
     if (gap >= 0 && gap <= gapSec) {
@@ -737,7 +877,10 @@ def checkStatus(evt = null) {
         } else {
             setLights(alertColor, alertLevel)
             if (sendPush && inTimeWindow()) scheduleNotification()
-            if (blinkEnable && inBlinkTimeWindow()) toggleBlink()
+            if (blinkEnable && inBlinkTimeWindow()) {
+                state.blinkingStopped = false  // Clear the stop flag
+                toggleBlink()
+            }
             runEvery1Minute("updateStatusTileLive")
         }
 
@@ -746,23 +889,6 @@ def checkStatus(evt = null) {
     } else {
         logInfo("No state change detected - staying ${isSecure ? 'secure' : 'alert'}")
         if (closedAny) updateStatusTile()
-    }
-}
-
-// === Live Dashboard Tile Update ===
-def updateStatusTileLive() {
-    updateStatusTile()
-    
-    // Check if we need to start notifications for already-open devices
-    def anyOpen = contacts?.any { it.currentValue("contact") == "open" }
-    def anyUnlocked = locks?.any { it.currentValue("lock") == "unlocked" }
-    
-    if (anyOpen || anyUnlocked) {
-        if (sendPush && inTimeWindow() && !state.notificationInitiated) {
-            logInfo("🔔 Starting notification cycle for already-open devices")
-            state.notificationInitiated = true
-            scheduleNotification()
-        }
     }
 }
 
@@ -872,10 +998,25 @@ def getHue(color) {
 // === Blinking ===
 def toggleBlink() {
     unschedule("toggleBlink")
+    if (state.blinkingStopped) return
     if (blinkEnable && inBlinkTimeWindow()) {
-        nightLights?.each { light ->
-            def currentState = light.currentValue("switch") == "on" ? "off" : "on"
-            light."${currentState}"()
+        if (blinkMethod == "Flash Command") {
+            // Use device flash command if available
+            nightLights?.each { light ->
+                if (light.hasCommand("flash")) {
+                    light.flash()
+                } else {
+                    logInfo("Warning: ${light.displayName} does not support flash command, using on/off instead")
+                    def currentState = light.currentValue("switch") == "on" ? "off" : "on"
+                    light."${currentState}"()
+                }
+            }
+        } else {
+            // Default on/off toggle
+            nightLights?.each { light ->
+                def currentState = light.currentValue("switch") == "on" ? "off" : "on"
+                light."${currentState}"()
+            }
         }
         runIn(blinkInterval?.toInteger() ?: 2, toggleBlink)
         if (blinkMaxMinutes > 0) runIn(blinkMaxMinutes * 60, stopBlinking)
@@ -884,6 +1025,7 @@ def toggleBlink() {
 
 def stopBlinking() {
     logInfo("stopBlinking() called")
+    state.blinkingStopped = true  // Add this flag
     unschedule("toggleBlink")
     def anyOpen = contacts?.any { it.currentValue("contact") == "open" }
     def anyUnlocked = locks?.any { it.currentValue("lock") == "unlocked" }
@@ -914,7 +1056,6 @@ def doTestDaily() {
     sendDailyReportForce(false)
 }
 
-// === Clear Logs Button ===
 def doClearLogs() {
     logInfo("🧹 Manual clear logs from App - button")
     dailyResetClear()
@@ -922,8 +1063,8 @@ def doClearLogs() {
 
 // === Logging ===
 def scheduleLogDisable() {
-    logEnable = false
-    logInfo("Debug logging disabled")
+    app.updateSetting("logEnable", [value:"false", type:"bool"])
+    log.info "Debug logging disabled automatically"
 }
 
 // === Daily Reset ===
@@ -932,8 +1073,9 @@ def dailyResetClear() {
     state.alarmLog = []
     state.notifyLog = []
     state.lastNotificationTime = null
-    state.notificationInitiated = null  // ADD THIS LINE
+    state.notificationInitiated = null
     logInfo("🧹 Logs cleared at daily reset")
+    runEvery1Minute("updateStatusTileLive")  // Re-establish the tile update schedule
     runIn(2, updateStatusTile)
 }
 
