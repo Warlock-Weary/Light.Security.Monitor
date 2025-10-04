@@ -4,7 +4,7 @@
   "version": "21.0.0",
   "minimumHEVersion": "2.3.5",
   "dateReleased": "2025-10-04",
-  "releaseNotes": "v21.0.0 - Major update with wizard setup, UI overhaul, and critical bug fixes. BREAKING: First-time wizard required for all users (settings preserved). NEW: 6-step guided setup wizard, blink method toggle (On/Off vs Flash), instance name protection. FIXED: State preservation (settings changes no longer clear logs), blinking race condition, cron schedule survival after daily reset, tile update timing. IMPROVED: Mobile-responsive UI with separators, device type prefixes, unified styling across all pages.",
+  "releaseNotes": "v21.0.0 - Major update: NEW: 6-step wizard (runs on first upgrade), blink method toggle (On/Off vs Flash), instance name protection. FIXED: State preservation through settings changes, cron schedule survival after daily reset, blinking race condition. IMPROVED: Mobile-responsive UI with separators across all pages, device type prefixes, unified styling.",
   "category": "Safety & Security",
   "tags": [
     "Security",
@@ -15,35 +15,38 @@
   ],
   "apps": [
     {
-      "id": "2efd13d1-576f-4f6e-9222-8859554b2290",
+      "id": "d76bb4ff-3f89-4197-8819-9b74ddc82c98",
       "name": "Light Security Monitor",
-      "namespace": "LSM",
-      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/app/lsm-v20-app.groovy",
+      "namespace": "LSMTEST",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/apps/light-security-monitor.groovy",
       "required": true,
-      "oauth": false
+      "version": "21.0.0"
     }
   ],
   "drivers": [
     {
-      "id": "bf578b83-655c-4444-8fcd-825a50c1b169",
-      "name": "LSM Tile Device",
-      "namespace": "LSM",
-      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-tile-driver.groovy",
-      "required": true
+      "id": "8c7b1a2d-4e9f-4c3a-b5d6-7e8f9a0b1c2d",
+      "name": "LSMTEST EZ Tile Device",
+      "namespace": "LSMTEST",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsmtest-ez-tile-device.groovy",
+      "required": true,
+      "version": "21.0.0"
     },
     {
-      "id": "b4aec475-b763-43fc-9681-cb0a62e3d3f3",
-      "name": "LSM EZ Tile Device",
-      "namespace": "LSM",
-      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-ez-driver.groovy",
-      "required": true
+      "id": "9d8e2b3f-5f0a-4d4b-c6e7-8f9a0b1c2d3e",
+      "name": "LSMTEST Report Button",
+      "namespace": "LSMTEST",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsmtest-report-button.groovy",
+      "required": true,
+      "version": "21.0.0"
     },
     {
-      "id": "5dc44745-8d6b-4976-b49c-9fadb886b62a",
-      "name": "LSM Report Button",
-      "namespace": "LSM",
-      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-button-driver.groovy",
-      "required": true
+      "id": "0e9f3c4a-6a1b-4e5c-d7f8-9a0b1c2d3e4f",
+      "name": "LSMTEST Tile Device",
+      "namespace": "LSMTEST",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsmtest-tile-device.groovy",
+      "required": true,
+      "version": "21.0.0"
     }
   ]
 }
