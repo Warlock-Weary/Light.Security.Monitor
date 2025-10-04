@@ -13,17 +13,17 @@
     "Dashboard",
     "Wizard"
   ],
-  "apps": [
-    {
-      "id": "d76bb4ff-3f89-4197-8819-9b74ddc82c98",
-      "name": "Light Security Monitor",
-      "namespace": "LSM",
-      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/app/light-security-monitor.groovy",
-      "required": true,
-      "version": "21.0.1"
-    }
-  ],
-  "drivers": [
+"apps": [
+  {
+    "id": "2efd13d1-576f-4f6e-9222-88B9554b2209",
+    "name": "Light Security Monitor",
+    "namespace": "LSM",
+    "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/app/light-security-monitor.groovy",
+    "required": true,
+    "version": "21.0.1"
+  }
+],
+"drivers": [
     {
       "id": "8c7b1a2d-4e9f-4c3a-b5d6-7e8f9a0b1c2d",
       "name": "LSM EZ Tile Device",
