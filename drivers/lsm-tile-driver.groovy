@@ -1,7 +1,7 @@
 /**
- * LSM Tile Device v20.0
+ * LSMTEST Tile Device v21
  * Virtual child device for Light Security Monitor
- * Provides `statusTile` attribute for legacy dashboards
+ * Provides `statusTile` and `image` attributes for legacy dashboards
  */
 metadata {
     definition(name: "LSM Tile Device", namespace: "LSM", author: "WarlockWeary + ChatGPT + Grok") {
