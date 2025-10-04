@@ -30,7 +30,7 @@
       "id": "4c83e9a5-2b0c-44a4-8610-993c12b3b8e3",
       "name": "LSM Tile Device",
       "namespace": "LSM",
-      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-tile-device.groovy",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-tile-driver.groovy",
       "required": true,
       "version": "21.0.1"
     },
@@ -38,7 +38,7 @@
       "id": "7e9f2c0b-3a1f-49c5-bd8e-7b812f2d4a9a",
       "name": "LSM EZ Tile Device",
       "namespace": "LSM",
-      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-ez-tile-device.groovy",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-ez-driver.groovy",
       "required": true,
       "version": "21.0.1"
     },
@@ -46,7 +46,7 @@
       "id": "5d6f7a8b-9c0d-41e2-8f7b-3d2e4f5c6a7b",
       "name": "LSM Report Button",
       "namespace": "LSM",
-      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-report-button.groovy",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-button-driver.groovy",
       "required": true,
       "version": "21.0.1"
     }
