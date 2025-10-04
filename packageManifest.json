@@ -1,10 +1,10 @@
 {
   "packageName": "Light Security Monitor",
   "author": "WarlockWeary + Claude AI + ChatGPT + Grok",
-  "version": "21.0.5",
+  "version": "21.0.6",
   "minimumHEVersion": "2.3.5",
   "dateReleased": "2025-10-04",
-  "releaseNotes": "v21.0.5 - Restored original UUIDs to prevent duplicate installs. Safe for all existing users upgrading from v20.x or v21.x. No functional changes.",
+  "releaseNotes": "v21.0.6 - Restored original UUIDs to prevent duplicate installs. Safe for all existing users upgrading from v20.x or v21.x. No functional changes.",
   "category": "Safety & Security",
   "tags": ["Security", "Monitoring", "Notifications", "Dashboard", "Wizard"],
 
