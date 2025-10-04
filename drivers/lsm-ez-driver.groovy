@@ -1,5 +1,5 @@
 /**
- * LSM EZ Tile Device v20.0
+ * LSMTEST EZ Tile Device v21
  * Enhanced child device for Light Security Monitor with EZ-Dashboard support
  * Author: WarlockWeary + ChatGPT + Grok + Claude
  *
@@ -24,13 +24,6 @@
  * - LOCKS - : Comma-separated short names of unlocked locks
  * - CONTACTS - : Comma-separated short names of open contacts
  * - LAST-UPDATE - : Timestamp of last update
- *
- * Fixes / Enhancements:
- * - Added lock and contact activity summaries
- * - Added short name support for lock/contact lists
- * - Changed default open state names to "NONE-OPEN" for clarity
- * - Improved debug logging output
- * - Preserved legacy attributes for backward compatibility
  */
 
 metadata {
@@ -105,8 +98,8 @@ def setSecureState(isSecure, unsecureCount = 0, securePct = 100,
         sendEvent(name: "LOCKS-OPEN -", value: lockCount as Integer)
         sendEvent(name: "CONTACTS-OPEN -", value: contactCount as Integer)
         sendEvent(name: "ACTIVITY -", value: "${totalOpens}x - ${unsecuredTime}")
-        sendEvent(name: "LOCK-ACTIVITY -", value: lockActivity)
-        sendEvent(name: "CONTACT-ACTIVITY -", value: contactActivity)
+        sendEvent(name: "LOCK-ACTIVITY -", value: lockActivity ?: "No activity")
+        sendEvent(name: "CONTACT-ACTIVITY -", value: contactActivity ?: "No activity")
         sendEvent(name: "LOCKS -", value: lockNames ?: "NONE-OPEN")
         sendEvent(name: "CONTACTS -", value: contactNames ?: "NONE-OPEN")
         sendEvent(name: "LAST-UPDATE -", value: timestamp)
@@ -126,19 +119,19 @@ def setSecureState(isSecure, unsecureCount = 0, securePct = 100,
     sendEvent(name: "temperature", value: lockCount as Integer)       // Lock count as temperature
     
     if (logEnable) {
-        log.info "LSM EZ Tile updated: Status=${status}, Unsecure=${unsecureCount}, Secure%=${securePct}, Locks=${lockCount}, Contacts=${contactCount}, Opens=${totalOpens}x, Time=${unsecuredTime}, LockActivity=${lockActivity}, ContactActivity=${contactActivity}, LockNames=${lockNames}, ContactNames=${contactNames}"
+        log.info "LSMTEST EZ Tile updated: Status=${status}, Unsecure=${unsecureCount}, Secure%=${securePct}, Locks=${lockCount}, Contacts=${contactCount}, Opens=${totalOpens}x, Time=${unsecuredTime}, LockActivity=${lockActivity}, ContactActivity=${contactActivity}, LockNames=${lockNames}, ContactNames=${contactNames}"
     }
 }
 
 // === Refresh command (triggers parent app update only) ===
 def refresh() {
-    if (logEnable) log.debug "LSM EZ Tile: Refresh requested - triggering parent app status check"
+    if (logEnable) log.debug "LSMTEST EZ Tile: Refresh requested - triggering parent app status check"
     parent?.checkStatus() // Trigger parent app to update status
 }
 
 // === Device Lifecycle ===
 def installed() {
-    log.info "LSM EZ Tile Device v2.5 (Read-Only) installed successfully"
+    log.info "LSMTEST EZ Tile Device v20.0.3 (Read-Only) installed successfully"
     // Set default values
     sendEvent(name: "contact", value: "closed")
     if (useEnhancedNames != false) {
@@ -148,11 +141,10 @@ def installed() {
         sendEvent(name: "LOCKS-OPEN -", value: 0)
         sendEvent(name: "CONTACTS-OPEN -", value: 0)
         sendEvent(name: "ACTIVITY -", value: "0x - 0h 0m 0s")
-        sendEvent(name: "LOCK-ACTIVITY -", value: "")
-        sendEvent(name: "CONTACT-ACTIVITY -", value: "")
+        sendEvent(name: "LOCK-ACTIVITY -", value: "No activity")
+        sendEvent(name: "CONTACT-ACTIVITY -", value: "No activity")
         sendEvent(name: "LOCKS -", value: "NONE-OPEN")
         sendEvent(name: "CONTACTS -", value: "NONE-OPEN")
-
     }
     
     // Initialize legacy attributes
@@ -167,7 +159,7 @@ def installed() {
 }
 
 def updated() {
-    log.info "LSM EZ Tile Device v2.5 configuration updated"
+    log.info "LSMTEST EZ Tile Device v20.0.3 configuration updated"
     if (logEnable) {
         log.info "Debug logging enabled - will auto-disable in 30 minutes"
         runIn(1800, logsOff)
@@ -176,5 +168,5 @@ def updated() {
 
 def logsOff() {
     device.updateSetting("logEnable", [value: "false", type: "bool"])
-    log.info "LSM EZ Tile: Debug logging auto-disabled"
+    log.info "LSMTEST EZ Tile: Debug logging auto-disabled"
 }
