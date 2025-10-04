@@ -1,5 +1,5 @@
 /**
- * LSMTEST EZ Tile Device V21.0.0
+ * LSMTEST EZ Tile Device V21.0.5
  * Enhanced child device for Light Security Monitor with EZ-Dashboard support
  * Author: WarlockWeary + ChatGPT + Grok + Claude
  *
