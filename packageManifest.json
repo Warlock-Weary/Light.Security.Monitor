@@ -13,7 +13,7 @@
       "id": "b88f91d9-1a8b-4d9c-a6a9-4a1232ce5cde",
       "name": "Light Security Monitor",
       "namespace": "LSM",
-      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/app/lsm-v20-app.groovy",
+      "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/app/lsm-app.groovy",
       "required": true,
       "version": "21.0.5"
     }
