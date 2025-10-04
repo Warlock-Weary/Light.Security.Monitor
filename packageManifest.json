@@ -1,10 +1,10 @@
 {
   "packageName": "Light Security Monitor",
   "author": "WarlockWeary + Claude AI + ChatGPT + Grok",
-  "version": "21.0.2",
+  "version": "21.0.5",
   "minimumHEVersion": "2.3.5",
   "dateReleased": "2025-10-04",
-  "releaseNotes": "v21.0.2 - Corrected file paths and restored original app/driver IDs to prevent duplication during update.",
+  "releaseNotes": "v21.0.5 - Corrected file paths and restored original app/driver IDs to prevent duplication during update.",
   "category": "Safety & Security",
   "tags": ["Security", "Monitoring", "Notifications", "Dashboard", "Wizard"],
 
@@ -15,7 +15,7 @@
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/app/lsm-v20-app.groovy",
       "required": true,
-      "version": "21.0.2"
+      "version": "21.0.5"
     }
   ],
 
@@ -26,7 +26,7 @@
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-tile-driver.groovy",
       "required": true,
-      "version": "21.0.2"
+      "version": "21.0.5"
     },
     {
       "id": "b5cdd4a1-9a08-44ad-8e6e-76cf8164cb72",
@@ -34,7 +34,7 @@
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-ez-driver.groovy",
       "required": true,
-      "version": "21.0.2"
+      "version": "21.0.5"
     },
     {
       "id": "65794891-b88a-4a39-ae7f-38a3e72fa31c",
@@ -42,7 +42,7 @@
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-button-driver.groovy",
       "required": true,
-      "version": "21.0.2"
+      "version": "21.0.5"
     }
   ]
 }
