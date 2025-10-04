@@ -1,48 +1,48 @@
 {
   "packageName": "Light Security Monitor",
   "author": "WarlockWeary + Claude AI + ChatGPT + Grok",
-  "version": "21.0.5",
+  "version": "22.0.0",
   "minimumHEVersion": "2.3.5",
   "dateReleased": "2025-10-04",
-  "releaseNotes": "v21.0.5 - Restored original UUIDs to prevent duplicate installs. Safe for all users upgrading from v20.x or v21.x.",
+  "releaseNotes": "⚠️ MAJOR RESET - All new UUIDs, clean install required. Delete old LSM app and drivers before installing. Fresh start with new file naming (lsm-app.groovy).",
   "category": "Safety & Security",
   "tags": ["Security", "Monitoring", "Notifications", "Dashboard", "Wizard"],
 
   "apps": [
     {
-      "id": "b88f91d9-1a8b-4d9c-a6a9-4a1232ce5cde",
+      "id": "92b0c4a2-27ab-47a4-9d31-ffae7b5f1f94",
       "name": "Light Security Monitor",
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/app/lsm-app.groovy",
       "required": true,
-      "version": "21.0.5"
+      "version": "22.0.0"
     }
   ],
 
   "drivers": [
     {
-      "id": "4c83e9a5-2b0c-44a4-8610-993c12b3b8e3",
+      "id": "4a1e2c7f-9bb2-4e2a-a24c-1ccf561f40da",
       "name": "LSM Tile Device",
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-tile-driver.groovy",
       "required": true,
-      "version": "21.0.5"
+      "version": "22.0.0"
     },
     {
-      "id": "7e9f2c0b-3a1f-49c5-bd8e-7b812f2d4a9a",
+      "id": "8e3cf5e1-51aa-4d8e-985a-b63cc013cd3a",
       "name": "LSM EZ Tile Device",
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-ez-driver.groovy",
       "required": true,
-      "version": "21.0.5"
+      "version": "22.0.0"
     },
     {
-      "id": "5d6f7a8b-9c0d-41e2-8f7b-3d2e4f5c6a7b",
+      "id": "b5f412ab-b13a-4ed6-bc8a-6f93892b6e02",
       "name": "LSM Report Button",
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-button-driver.groovy",
       "required": true,
-      "version": "21.0.5"
+      "version": "22.0.0"
     }
   ]
 }
