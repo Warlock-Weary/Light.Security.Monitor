@@ -1,11 +1,16 @@
 /**
- * Light Security Monitor V22.0.0
+ * Light Security Monitor V22.0.1
  * Author: Claude AI + WarlockWeary + ChatGPT + Grok
  *
  * Wizard-style setup for LSM
  * - Full core logic with state preservation and race condition fixes
  * - Wizard: 6 steps + summary (full setup page)
  * - Features: Debounce filtering, EZ Dashboard support, blink method toggle, unified UI styling
+ *
+ * V22.0.1 CHANGES:
+ * - FIXED: Child device naming now uses stable namePrefix instead of app.id
+ * - FIXED: Child devices survive HPM updates without duplication
+ * - FIXED: Dashboard tiles maintain connection through updates
  *
  * CORE FUNCTIONALITY FIXES:
  * - FIXED: State preservation in initialize() - settings changes no longer wipe daily logs
@@ -286,24 +291,26 @@ def updated() {
 def initialize() {
     getTileDevice()
     
-    // EZ Dashboard Child Device
-    def ezChild = getChildDevice("${app.id}-EZTile")
+    // EZ Dashboard Child Device - STABLE NAMING
+    def ezDni = "LSM-EZ-${namePrefix?.toUpperCase()}"
+    def ezChild = getChildDevice(ezDni)
     if (!ezChild) {
         try {
-            ezChild = addChildDevice("LSM", "LSM EZ Tile Device", "${app.id}-EZTile",
-                [name: "LSM EZ TILE - ${namePrefix?.toUpperCase() ?: app.label.toUpperCase()}", isComponent: true])
+            ezChild = addChildDevice("LSM", "LSM EZ Tile Device", ezDni,
+                [name: "LSM EZ TILE - ${namePrefix?.toUpperCase()}", isComponent: true])
             logInfo("Created EZ Dashboard child device: ${ezChild.displayName}")
         } catch (e) {
             log.error "Failed to create EZ Dashboard child device: ${e}"
         }
     }
     
-    // Report Button Child Device
-    def button = getChildDevice("LSM-BTN-${app.id}")
+    // Report Button Child Device - STABLE NAMING
+    def btnDni = "LSM-BTN-${namePrefix?.toUpperCase()}"
+    def button = getChildDevice(btnDni)
     if (!button) {
         try {
-            button = addChildDevice("LSM", "LSM Report Button", "LSM-BTN-${app.id}",
-                [name: "LSM REPORT BUTTON - ${namePrefix?.toUpperCase() ?: app.label.toUpperCase()}"])
+            button = addChildDevice("LSM", "LSM Report Button", btnDni,
+                [name: "LSM REPORT BUTTON - ${namePrefix?.toUpperCase()}"])
             logInfo("Created report button device: ${button.displayName}")
         } catch (e) {
             log.error "Failed to create report button device: ${e}"
@@ -338,13 +345,14 @@ def colorOptions() {
 // === Logging Utility ===
 def logInfo(msg) { if (logEnable) log.info "-= Security Monitor =- ${msg}" }
 
-// === Child Device Helper ===
+// === Child Device Helper - STABLE NAMING ===
 def getTileDevice() {
-    def child = getChildDevice("LSM-${app.id}")
+    def childDni = "LSM-TILE-${namePrefix?.toUpperCase()}"
+    def child = getChildDevice(childDni)
     if (!child) {
         try {
-                child = addChildDevice("LSM", "LSM Tile Device", "LSM-${app.id}",
-                [name: "LSM TILE - ${namePrefix?.toUpperCase() ?: app.label.toUpperCase()}", isComponent: true])
+            child = addChildDevice("LSM", "LSM Tile Device", childDni,
+                [name: "LSM TILE - ${namePrefix?.toUpperCase()}", isComponent: true])
             logInfo("Created child device: ${child.displayName}")
         } catch (e) {
             log.error "Failed to create child device: ${e}"
@@ -468,7 +476,7 @@ def getStatusSummary() {
     }
     
     sb += "<br>"
-    sb += "🔐 <b>SECURE:</b> ${(secureColor ?: "Green").toUpperCase()} AT ${(secureLevel ?: 100)}%<br>"
+    sb += "🔒 <b>SECURE:</b> ${(secureColor ?: "Green").toUpperCase()} AT ${(secureLevel ?: 100)}%<br>"
     sb += "❌ <b>ALERT:</b> ${(alertColor ?: "Red").toUpperCase()} AT ${(alertLevel ?: 100)}%<br><br>"
     
     if (blinkEnable) {
@@ -477,7 +485,7 @@ def getStatusSummary() {
         sb += "🚨 <b>BLINKING:</b> ${method.toUpperCase()} - EVERY ${blinkInterval ?: 3}S (${stopText})<br>"
         def bStart = blinkStartTime ? timeToday(blinkStartTime, location.timeZone) : null
         def bEnd = blinkEndTime ? timeToday(blinkEndTime, location.timeZone) : null
-        if (bStart && bEnd) sb += "&nbsp;&nbsp;<b>TIME LIMIT:</b> ${bStart.format('h:mm a')} – ${bEnd.format('h:mm a')}<br>"
+        if (bStart && bEnd) sb += "&nbsp;&nbsp;<b>TIME LIMIT:</b> ${bStart.format('h:mm a')} — ${bEnd.format('h:mm a')}<br>"
         sb += "<br>"
     } else {
         sb += "🚨 <b>BLINKING:</b> DISABLED<br><br>"
@@ -489,7 +497,7 @@ def getStatusSummary() {
         if (grace > 0) sb += "<br>&nbsp;&nbsp;<b>FIRST ALERT DELAYED:</b> ${grace}M"
         def nStart = startTime ? timeToday(startTime, location.timeZone) : null
         def nEnd = endTime ? timeToday(endTime, location.timeZone) : null
-        if (nStart && nEnd) sb += "<br>&nbsp;&nbsp;<b>TIME LIMIT:</b> ${nStart.format('h:mm a')} – ${nEnd.format('h:mm a')}"
+        if (nStart && nEnd) sb += "<br>&nbsp;&nbsp;<b>TIME LIMIT:</b> ${nStart.format('h:mm a')} — ${nEnd.format('h:mm a')}"
         sb += "<br><br>"
     } else {
         sb += "📲 <b>NOTIFICATIONS:</b> DISABLED<br><br>"
@@ -497,7 +505,7 @@ def getStatusSummary() {
     
     def daily = dailyReportTime ? timeToday(dailyReportTime, location.timeZone) : null
     sb += "📜 <b>DAILY REPORT:</b> ${dailyReportEnable && daily ? "ENABLED AT ${daily.format('h:mm a')}" : "DISABLED"}<br><br>"
-    sb += "📝 <b>LOGGING:</b> ${logEnable ? "ENABLED" : "DISABLED"} (AUTO-DISABLE: ${logAutoDisable ? "YES" : "NO"})<br><br>"
+    sb += "🔍 <b>LOGGING:</b> ${logEnable ? "ENABLED" : "DISABLED"} (AUTO-DISABLE: ${logAutoDisable ? "YES" : "NO"})<br><br>"
     if (state.lastCheck) sb += "📅 <b>LAST CHECK:</b> ${state.lastCheck}<br>"
     
     return sb
@@ -610,6 +618,7 @@ def sendDailyReportForce(clearLogs = false) {
 }
 
 // === Dashboard Tile Update ===
+// === Dashboard Tile Update ===
 def updateStatusTile() {
     def child = getTileDevice()
     if (!child) return
@@ -620,7 +629,7 @@ def updateStatusTile() {
     def tz = (location?.timeZone) ?: TimeZone.getDefault()
     def now = new Date()
     def currentTime = now.time
-    state.lastTileUpdate = now.format("MMM d yyyy hh:mm a", tz)  // Add this
+    state.lastTileUpdate = now.format("MMM d yyyy hh:mm a", tz)
 
     // Daily-window
     def reportStartTime = timeToday(dailyReportStartTime ?: "06:00 AM", tz)
@@ -692,21 +701,21 @@ def updateStatusTile() {
     deviceLines.each { line -> tile += "${line}<br>" }
     if (deviceLines.size() > 0) tile += "<br>"
 
-if (openDevs.isEmpty() && unlockedLocks.isEmpty()) {
-    tile += "Secure Today: ${reportStartStr} · (${fmtTime(timeDataDaily.secureSeconds)})<br>"
-    tile += "Device Totals: (${totalOpens}x) (${fmtTime(timeDataDaily.unsecureSeconds)})<br>"
-    tile += "Lock Activity: (${lockActivity.count}x) (${fmtTime(lockActivity.seconds)})<br>"
-    tile += "Contact Activity: (${contactActivity.count}x) (${fmtTime(contactActivity.seconds)})<br>"
-    def nStart = startTime ? timeToday(startTime, location.timeZone) : null
-    def nEnd = endTime ? timeToday(endTime, location.timeZone) : null
-    def notifyStatus = sendPush ? "ON (${repeatMinutes ?: 15}m)" + (nStart && nEnd ? " ${nStart.format('h:mm a')} – ${nEnd.format('h:mm a')}" : "") : "OFF"
-    def bStart = blinkStartTime ? timeToday(blinkStartTime, location.timeZone) : null
-    def bEnd = blinkEndTime ? timeToday(blinkEndTime, location.timeZone) : null
-    def blinkStatus = blinkEnable ? "ON (${blinkInterval ?: 3}s)" + (bStart && bEnd ? " ${bStart.format('h:mm a')} – ${bEnd.format('h:mm a')}" : "") : "OFF"
-    tile += "Notifications: ${notifyStatus}<br>"
-    tile += "Blinking: ${blinkStatus}<br>"
-    if (state.lastTileUpdate) tile += "Last Update: ${state.lastTileUpdate}<br>"
-} else {
+    if (openDevs.isEmpty() && unlockedLocks.isEmpty()) {
+        tile += "Secure Today: ${reportStartStr} · (${fmtTime(timeDataDaily.secureSeconds)})<br>"
+        tile += "Device Totals: (${totalOpens}x) (${fmtTime(timeDataDaily.unsecureSeconds)})<br>"
+        tile += "Lock Activity: (${lockActivity.count}x) (${fmtTime(lockActivity.seconds)})<br>"
+        tile += "Contact Activity: (${contactActivity.count}x) (${fmtTime(contactActivity.seconds)})<br>"
+        def nStart = startTime ? timeToday(startTime, location.timeZone) : null
+        def nEnd = endTime ? timeToday(endTime, location.timeZone) : null
+        def notifyStatus = sendPush ? "ON (${repeatMinutes ?: 15}m)" + (nStart && nEnd ? " ${nStart.format('h:mm a')} — ${nEnd.format('h:mm a')}" : "") : "OFF"
+        def bStart = blinkStartTime ? timeToday(blinkStartTime, location.timeZone) : null
+        def bEnd = blinkEndTime ? timeToday(blinkEndTime, location.timeZone) : null
+        def blinkStatus = blinkEnable ? "ON (${blinkInterval ?: 3}s)" + (bStart && bEnd ? " ${bStart.format('h:mm a')} — ${bEnd.format('h:mm a')}" : "") : "OFF"
+        tile += "Notifications: ${notifyStatus}<br>"
+        tile += "Blinking: ${blinkStatus}<br>"
+        if (state.lastTileUpdate) tile += "Last Update: ${state.lastTileUpdate}<br>"
+    } else {
         tile += "Device Totals: (${totalOpens}x) (${fmtTime(timeDataDaily.unsecureSeconds)})<br>"
         tile += "Lock Activity: (${lockActivity.count}x) (${fmtTime(lockActivity.seconds)})<br>"
         tile += "Contact Activity: (${contactActivity.count}x) (${fmtTime(contactActivity.seconds)})<br>"
@@ -715,8 +724,8 @@ if (openDevs.isEmpty() && unlockedLocks.isEmpty()) {
     child.sendEvent(name: "statusTile", value: tile, isStateChange: true)
     child.sendEvent(name: "image", value: tile, isStateChange: true)
 
-    // EZ Dashboard
-    def ezChild = getChildDevice("${app.id}-EZTile")
+    // EZ Dashboard - STABLE NAMING
+    def ezChild = getChildDevice("LSM-EZ-${namePrefix?.toUpperCase()}")
     if (ezChild) {
         def allSecure = (openDevs.isEmpty() && unlockedLocks.isEmpty())
         def securePct = timeDataRolling.securePct ?: 100
@@ -750,6 +759,36 @@ if (openDevs.isEmpty() && unlockedLocks.isEmpty()) {
             contactNames
         )
     }
+
+    // === Activity Log (reuses timeDataDaily calculation) ===
+    def deviceActivity = timeDataDaily.deviceActivity
+    
+    if (deviceActivity.isEmpty()) {
+def activityLog = "📊 24-HOUR ACTIVITY LOG<br>──────────────────────<br>No activity recorded<br>──────────────────────<br>Window: ${reportStartStr} To: ${now.format('MMM d h:mm a', tz)}"
+        child.sendEvent(name: "activityLog", value: activityLog, isStateChange: true)
+    } else {
+        // Sort: locks first, then contacts
+        def lockEntries = []
+        def contactEntries = []
+        
+        deviceActivity.each { dev, data ->
+            def isLock = locks?.find { it.displayName == dev }
+            def shortName = toShortLabel(dev)
+            def entry = "${isLock ? 'LOCK' : 'CONTACT'}: ${shortName}<br>&nbsp;&nbsp;Opens: ${data.count}x · Duration: ${fmtTime(data.seconds)}"
+            
+            if (isLock) {
+                lockEntries << entry
+            } else {
+                contactEntries << entry
+            }
+        }
+        
+        def activityLog = "📊 24-HOUR ACTIVITY LOG<br>──────────────────────<br>"
+        activityLog += (lockEntries + contactEntries).join("<br>")
+activityLog += "<br>──────────────────────<br>Window: ${reportStartStr} To: ${now.format('MMM d h:mm a', tz)}"
+        
+        child.sendEvent(name: "activityLog", value: activityLog, isStateChange: true)
+    }
 }
 
 // === Live Dashboard Update ===
@@ -761,7 +800,7 @@ def updateStatusTileLive() {
     
     if (anyOpen || anyUnlocked) {
         if (sendPush && inTimeWindow() && !state.notificationInitiated) {
-            logInfo("🔔 Starting notification cycle for already-open devices")
+            logInfo("📢 Starting notification cycle for already-open devices")
             state.notificationInitiated = true
             scheduleNotification()
         }
@@ -825,7 +864,7 @@ def checkStatus(evt = null) {
         if (shouldClose) {
             entry.end = currentTime
             def duration = ((currentTime - entry.start) / 1000).toInteger()
-            logInfo("📝 Closing log entry for ${deviceName} - Duration: ${fmtTime(duration)}")
+            logInfo("🔒 Closing log entry for ${deviceName} - Duration: ${fmtTime(duration)}")
             closedAny = true
         }
     }
@@ -942,21 +981,21 @@ def scheduleNotification() {
 }
 
 def sendRepeatNotification() {
-    logInfo("🔔 sendRepeatNotification called at ${new Date()}")
+    logInfo("📢 sendRepeatNotification called at ${new Date()}")
     def msg = getCurrentStatusMessage()
-    logInfo("🔔 Message: ${msg}")
-    logInfo("🔔 inTimeWindow: ${inTimeWindow()}")
-    logInfo("🔔 notifyDevices: ${notifyDevices}")
+    logInfo("📢 Message: ${msg}")
+    logInfo("📢 inTimeWindow: ${inTimeWindow()}")
+    logInfo("📢 notifyDevices: ${notifyDevices}")
     
     if ((msg.contains("❌") || msg.contains("⚠️")) && inTimeWindow()) {
-        sendMessage("⚠ Security Alert! Unsecure device(s) detected!\n${msg}")
+        sendMessage("⚠️ Security Alert! Unsecure device(s) detected!\n${msg}")
         state.lastNotificationTime = now()
         if (repeatMinutes) {
-            logInfo("🔔 Scheduling next notification in ${repeatMinutes} minutes")
+            logInfo("📢 Scheduling next notification in ${repeatMinutes} minutes")
             runIn(repeatMinutes * 60, sendRepeatNotification)
         }
     } else {
-        logInfo("🔔 Notification NOT sent - conditions not met")
+        logInfo("📢 Notification NOT sent - conditions not met")
     }
 }
 
