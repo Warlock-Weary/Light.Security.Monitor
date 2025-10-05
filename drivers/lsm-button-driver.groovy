@@ -40,11 +40,8 @@ def push(buttonNum = 1) {
     if (btn > 0 && btn <= (numButtons ?: 1)) {
         sendEvent(name: "pushed", value: btn, isStateChange: true)
         sendEvent(name: "button", value: "pushed", isStateChange: true)
+        sendEvent(name: "lastReport", value: new Date().format("MMM d yyyy HH:mm:ss", location.timeZone))
         log.info "LSMTEST Report Button - Button ${btn} pushed"
-        if (btn == 1) {  // Button 1 = Daily Report
-            parent?.sendDailyReportForce(false)
-            sendEvent(name: "lastReport", value: new Date().format("MMM d yyyy HH:mm:ss", location.timeZone))
-        }
     } else {
         log.warn "Invalid button number: ${btn}"
     }
