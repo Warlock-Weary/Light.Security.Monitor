@@ -15,7 +15,7 @@
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/app/lsm-app.groovy",
       "required": true,
-      "version": "22.0.0"
+      "version": "22.0.1"
     }
   ],
 
@@ -26,7 +26,7 @@
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-tile-driver.groovy",
       "required": true,
-      "version": "22.0.0"
+      "version": "22.0.1"
     },
     {
       "id": "8e3cf5e1-51aa-4d8e-985a-b63cc013cd3a",
@@ -34,7 +34,7 @@
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-ez-driver.groovy",
       "required": true,
-      "version": "22.0.0"
+      "version": "22.0.1"
     },
     {
       "id": "b5f412ab-b13a-4ed6-bc8a-6f93892b6e02",
@@ -42,7 +42,7 @@
       "namespace": "LSM",
       "location": "https://raw.githubusercontent.com/Warlock-Weary/Light.Security.Monitor/main/drivers/lsm-button-driver.groovy",
       "required": true,
-      "version": "22.0.0"
+      "version": "22.0.1"
     }
   ]
 }
