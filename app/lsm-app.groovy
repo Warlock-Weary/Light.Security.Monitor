@@ -760,35 +760,34 @@ def updateStatusTile() {
         )
     }
 
-    // === Activity Log (reuses timeDataDaily calculation) ===
-    def deviceActivity = timeDataDaily.deviceActivity
+// === Activity Log (reuses timeDataDaily calculation) ===
+def deviceActivity = timeDataDaily.deviceActivity
+
+if (deviceActivity.isEmpty()) {
+    def activityLog = "📊 24-HOUR ACTIVITY LOG<br>──────────────────────<br>No activity recorded<br>──────────────────────<br>Window: ${reportStartStr} To: ${now.format('MMM d h:mm a', tz)}"
+    child.sendEvent(name: "activityLog", value: activityLog, isStateChange: true)
+} else {
+    // Sort: locks first, then contacts
+    def lockEntries = []
+    def contactEntries = []
     
-    if (deviceActivity.isEmpty()) {
-def activityLog = "📊 24-HOUR ACTIVITY LOG<br>──────────────────────<br>No activity recorded<br>──────────────────────<br>Window: ${reportStartStr} To: ${now.format('MMM d h:mm a', tz)}"
-        child.sendEvent(name: "activityLog", value: activityLog, isStateChange: true)
-    } else {
-        // Sort: locks first, then contacts
-        def lockEntries = []
-        def contactEntries = []
+    deviceActivity.each { dev, data ->
+        def isLock = locks?.find { it.displayName == dev }
+        def shortName = toShortLabel(dev)
+        def entry = "${isLock ? 'LOCK' : 'CONTACT'}: ${shortName} (${data.count}x) ${fmtTime(data.seconds)}"
         
-        deviceActivity.each { dev, data ->
-            def isLock = locks?.find { it.displayName == dev }
-            def shortName = toShortLabel(dev)
-            def entry = "${isLock ? 'LOCK' : 'CONTACT'}: ${shortName}<br>&nbsp;&nbsp;Opens: ${data.count}x · Duration: ${fmtTime(data.seconds)}"
-            
-            if (isLock) {
-                lockEntries << entry
-            } else {
-                contactEntries << entry
-            }
+        if (isLock) {
+            lockEntries << entry
+        } else {
+            contactEntries << entry
         }
-        
-        def activityLog = "📊 24-HOUR ACTIVITY LOG<br>──────────────────────<br>"
-        activityLog += (lockEntries + contactEntries).join("<br>")
-activityLog += "<br>──────────────────────<br>Window: ${reportStartStr} To: ${now.format('MMM d h:mm a', tz)}"
-        
-        child.sendEvent(name: "activityLog", value: activityLog, isStateChange: true)
     }
+    
+    def activityLog = "📊 24-HOUR ACTIVITY LOG<br>──────────────────────<br>"
+    activityLog += (lockEntries + contactEntries).join("<br>")
+    activityLog += "<br>──────────────────────<br>Window: ${reportStartStr} To: ${now.format('MMM d h:mm a', tz)}"
+    
+    child.sendEvent(name: "activityLog", value: activityLog, isStateChange: true)
 }
 
 // === Live Dashboard Update ===
