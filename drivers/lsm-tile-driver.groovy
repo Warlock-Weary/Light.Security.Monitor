@@ -1,13 +1,14 @@
 /**
- * LSMTEST Tile Device V22.0.0
+ * LSMTEST Tile Device V22.0.1
  * Virtual child device for Light Security Monitor
- * Provides `statusTile` and `image` attributes for legacy dashboards
+ * Provides `statusTile`, `image`, and `activityLog` attributes for legacy dashboards
  */
 metadata {
-    definition(name: "LSM Tile Device", namespace: "LSM", author: "WarlockWeary + ChatGPT + Grok") {
+    definition(name: "LSM Tile Device", namespace: "LSM", author: "WarlockWeary + ChatGPT + Grok + Claude") {
         capability "Actuator"
         capability "Refresh"
         attribute "statusTile", "string"
+        attribute "activityLog", "string"
     }
 }
 def refresh() {
