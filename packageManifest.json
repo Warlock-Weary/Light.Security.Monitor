@@ -4,7 +4,7 @@
   "version": "22.0.1",
   "minimumHEVersion": "2.3.5",
   "dateReleased": "2025-10-05",
-  "releaseNotes": "⚠️ MAJOR RESET - All new UUIDs, clean install required. Delete old LSM app and drivers before installing. Fresh start with new file naming (lsm-app.groovy).",
+  "releaseNotes": "⚠️ MAJOR RESET 22.0.1 - All new UUIDs, clean install required. Delete old LSM app and drivers before installing. Fresh start with new file naming (lsm-app.groovy).",
   "category": "Safety & Security",
   "tags": ["Security", "Monitoring", "Notifications", "Dashboard", "Wizard"],
 
