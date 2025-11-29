@@ -1,5 +1,5 @@
 /**
- * Light Security Monitor V22.0.3
+ * Light Security Monitor V22.0.4
  * Author: Claude AI + WarlockWeary + ChatGPT + Grok
  *
  * Wizard-style setup for LSM
